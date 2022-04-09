@@ -28,16 +28,13 @@ def retrieve_emails():
 
     driver = get_webdriver()
 
-    companies = companies[0:4]
+    companies = companies[2:3]
     Utils.init_logging("Companies.log")
 
     # output file. Since it takes > 5 minutes, we save the partial results
     f = open('Emails.csv', 'w')
     writer = csv.writer(f)
     writer.writerow("website,emails_set")
-
-    # close the file
-    f.close()
 
     for i, row in companies.iterrows():
         website_url = row["website"]
@@ -47,23 +44,28 @@ def retrieve_emails():
         # Steps:
         # gather the subpages of the site at 1 level of depth
         # run a regex search on the site and its subpages for {alphanum}+@{alphanum}+.{alphabet}+
-        links_pt = re.compile('href=(\S)+\.([^\s"])+')
+        links_pt = re.compile('href=((\S)+\.([^\s"])+|"/([^\s"])+)')
         matches = [xp.group(0) for xp in re.finditer(links_pt, page_txt)]
         all_links = [s.replace('href="', "") for s in matches]
-        subpage_links = list(set([l for l in all_links if l.startswith(website_url)]))
+        subpage_links = list(set([l for l in all_links if (l.startswith(website_url) or l.startswith("/"))]))
         logging.info("\nPage: " + website_url)
+        # logging.info("List of subpages: " + str(subpage_links))
 
         site_emails = set()
+        session = requests.Session()
         for subpage_url in subpage_links:
+            if subpage_url.startswith(("/")):  # relative URL
+                subpage_url = website_url + subpage_url[1:]
             logging.info("Subpage:" + subpage_url)
-            driver.get(subpage_url)
-            page_txt = driver.page_source
+            # for speed, and because we do not need to follow any dynamic links, use requests to get the static text
+            response = session.get(subpage_url)
+            page_txt = response.text
             # *** Debug ***
-            ampersand_pt = re.compile("(.)+@(.+)")
-            amps = list(set([xp.group(0) for xp in re.finditer(ampersand_pt, page_txt)]))
+            # ampersand_pt = re.compile("(.)+@(.+)")
+            # amps = list(set([xp.group(0) for xp in re.finditer(ampersand_pt, page_txt)]))
             # logging.info("@ found in: " + str(amps))
             # ***
-            emails_pt = re.compile("([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,})+")
+            emails_pt = re.compile("(?<=mailto:)?([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,})+")
             addresses = list(set([xp.group(0) for xp in re.finditer(emails_pt, page_txt)]))
             if len(addresses) > 0:
                 logging.info("Addresses: " + str(addresses))
@@ -79,10 +81,12 @@ def retrieve_emails():
                 logging.info("Subpage: " + subpage_url + " ; E-mails: " + str(email_addresses_ls))
 
             site_emails = site_emails.union(set(email_addresses_ls))
+            time.sleep(1)  # to avoid rate limits on HTTP requests to a website
 
         logging.info("Site: " + website_url + " ; e-mails: " + str(site_emails))
         writer.writerow(website_url + ","+ str(site_emails))
 
     driver.close()
+    f.close()
 
     return companies, rounds
