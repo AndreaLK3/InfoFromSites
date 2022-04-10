@@ -24,22 +24,26 @@ def get_webdriver():
 
 def retrieve_emails():
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-    rounds = pd.read_excel("InputData.xlsx", sheet_name=1)
+    # rounds = pd.read_excel("InputData.xlsx", sheet_name=1)
 
     driver = get_webdriver()
 
-    companies = companies[2:3]
+    # companies = companies[10:12]
     Utils.init_logging("Companies.log")
 
     # output file. Since it takes > 5 minutes, we save the partial results
     f = open('Emails.csv', 'w')
     writer = csv.writer(f)
-    writer.writerow("website,emails_set")
+    writer.writerow(["website","emails_set"])
 
     for i, row in companies.iterrows():
         website_url = row["website"]
-
-        driver.get(website_url)
+        try:
+            driver.get(website_url)
+        except Exception as e:
+            logging.warning(website_url)
+            logging.warning(e)
+            continue
         page_txt = driver.page_source
         # Steps:
         # gather the subpages of the site at 1 level of depth
@@ -84,9 +88,9 @@ def retrieve_emails():
             time.sleep(1)  # to avoid rate limits on HTTP requests to a website
 
         logging.info("Site: " + website_url + " ; e-mails: " + str(site_emails))
-        writer.writerow(website_url + ","+ str(site_emails))
+        writer.writerow([website_url,str(site_emails)])
 
     driver.close()
     f.close()
 
-    return companies, rounds
+    # Examining the current e-mail results: which sites do not have e-mails, or have questionable e-mails?
