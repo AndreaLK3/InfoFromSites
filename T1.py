@@ -10,6 +10,15 @@ from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 import string
 
+# temp: add:
+# URL to:
+# ○ Contact pages; e.g. contact, impressum, kontakt
+# ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy, privacy-policy, terms-conditions,
+# legal-information, datenschutz, politique-de-confidentialite
+# ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, https://kriim.com/en/pages/quienes-somos
+# n: Subpage:https://plumetec.it/en: you need to use it as a new root page, if you want to avoid translations
+# or an alternate site, https://taxymatch.com/en
+
 def get_webdriver():
     # We need a Selenium webdriver to get 100% of the text from dynamic webpages that rely on javascript
 
@@ -25,16 +34,42 @@ def get_webdriver():
 def get_subpage_links(website_url, page_txt):
     links_pt = re.compile('href='
                           '((\S)+\.([^\s"])+'  # absolute URL
-                          '|"/([^\s"])+)')  # or: relative URL
+                          '|"/([^\s."])+)')  # or: relative URL
     matches = [xp.group(0) for xp in re.finditer(links_pt, page_txt)]
     all_links = [s.replace('href="', "") for s in matches]
     subpage_links = list(set([l for l in all_links if (l.startswith(website_url) or l.startswith("/"))]))
-    extensions_to_exclude = ["xml", "css", "js", "png"]
-    subpage_links = list(filter(lambda l: not(any([(l.endswith(ext)) for ext in extensions_to_exclude])), subpage_links))
+    extensions_to_exclude = ["xml", "css", "js", "png", "jpg", "jpeg", "json"]
+    subpage_links = list(filter(lambda l: not(any([(ext in l for ext in extensions_to_exclude])), subpage_links))
     return subpage_links
 
+def get_emails(page_txt):
+    emails_pt = re.compile("(?<=mailto:)?([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,5})+")
+    addresses = list(set([xp.group(0) for xp in re.finditer(emails_pt, page_txt)]))
+    not_email_fragments = ["sentry", "wixpress", "png", "gif", "jpeg", "example",
+                           "jpg"]  # to exclude loader@2x.gif, etc.
+    email_addresses_ls = list(filter(lambda addr:
+                                     not (any([fragment in addr for fragment in not_email_fragments])), addresses))
 
-def retrieve_emails_and_numbers():
+    return email_addresses_ls
+
+
+def get_phone_numbers(page_txt):
+    # The phone numbers are taken from the visible text of the HTML pages, thus we need BeautifulSoup
+    soup = bs(page_txt, features="lxml")
+    visible_text = soup.getText(separator=" _ ")
+    numbers_pt = re.compile("(?<=el|ne)?"  # tel/phone
+                            "(:|\s)+(\+)?"  # starts with whitespace or directly after :, and maybe a +
+                            "(([0-9]){2,10}(\s)+)+")  # 1 or more sequences of numbers
+    numbers = [xp.group(0) for xp in re.finditer(numbers_pt, visible_text)]
+    numbers_digits = ["".join(list(filter(lambda c: c in string.digits + "+", num_str))) for num_str in numbers]
+    phone_numbers_ls = list(filter(lambda num: 7 <= len(num) <= 14, numbers_digits))  # number length
+    # are phone numbers already present, starting with +? if so, eliminate the others, they're likely not phones
+    if any(["+" in num for num in phone_numbers_ls]):
+        phone_numbers_ls = list(filter(lambda num: "+" in num, phone_numbers_ls))
+    return phone_numbers_ls
+
+
+def retrieve_info():
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
     # rounds = pd.read_excel("InputData.xlsx", sheet_name=1)
 
@@ -43,10 +78,10 @@ def retrieve_emails_and_numbers():
     # companies = companies[50:51]
     Utils.init_logging("Info.log")
 
-    # output file. Since it takes > 5 minutes, we save the partial results
+    # output file. Since it takes > 20 minutes, we save the partial results
     f = open('Info.csv', 'w', newline='')
     writer = csv.writer(f)
-    writer.writerow(["website","emails", "phone_numbers"])
+    writer.writerow(["website","emails", "phone_numbers", "Contact_pages", "Legal_pages", "AboutUs_pages"])
 
     for i, row in companies.iterrows():
         website_url = row["website"]
@@ -77,30 +112,12 @@ def retrieve_emails_and_numbers():
                 continue
             page_txt = driver.page_source
 
-            emails_pt = re.compile("(?<=mailto:)?([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,5})+")
-            addresses = list(set([xp.group(0) for xp in re.finditer(emails_pt, page_txt)]))
-            not_email_fragments = ["sentry", "wixpress", "png", "gif", "jpeg", "example"]  # to exclude loader@2x.gif, etc.
-            email_addresses_ls = list(filter(lambda addr:
-                                             not(any([fragment in addr for fragment in not_email_fragments])), addresses))
-
+            email_addresses_ls = get_emails(page_txt)
             if len(email_addresses_ls) > 0:
                 logging.info("Subpage: " + subpage_url + " ; E-mails: " + str(email_addresses_ls))
-
             site_emails = site_emails.union(set(email_addresses_ls))
 
-            # The phone numbers are taken from the visible text of the HTML pages, thus we need BeautifulSoup
-            soup = bs(page_txt, features="lxml")
-            visible_text = soup.getText(separator=" _ ")
-            numbers_pt = re.compile("(?<=el|ne)?"  # tel/phone
-                                    "(:|\s)+(\+)?"    # starts with whitespace or directly after :, and maybe a +
-                                    "(([0-9]){2,10}(\s)+)+")  # 1 or more sequences of numbers
-            numbers = [xp.group(0) for xp in re.finditer(numbers_pt, visible_text)]
-            numbers_digits = ["".join(list(filter(lambda c: c in string.digits+"+", num_str))) for num_str in numbers]
-            phone_numbers = list(filter(lambda num: 7 <= len(num) <= 14, numbers_digits))  # number length
-            # are phone numbers already present, starting with +? if so, eliminate the others, they're likely not phones
-            if any(["+" in num for num in phone_numbers]):
-                phone_numbers = list(filter(lambda num: "+" in num, phone_numbers))
-
+            phone_numbers = get_phone_numbers(page_txt)
             if len(phone_numbers) > 0:
                 logging.info("Subpage: " + subpage_url + " ; Phone numbers: " + str(phone_numbers))
             site_phones = site_phones.union(set(phone_numbers))
