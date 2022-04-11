@@ -10,6 +10,22 @@ from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 import string
 import langid
+import Levenshtein
+
+
+def remove_nearduplicates(str_ls):
+    # Auxiliary function
+    str_ls_1 = []
+    anchor_pt = re.compile("/#(\S)+$")
+    for s in str_ls:
+        if s in str_ls_1:
+            continue
+        if any([Levenshtein.distance(s, s1) <= 2 for s1 in str_ls_1]):
+            continue
+        if re.sub(anchor_pt, "", s) in str_ls_1:
+            continue
+        str_ls_1.append(s)
+    return str_ls_1
 
 
 def get_webdriver():
@@ -24,7 +40,32 @@ def get_webdriver():
     return driver
 
 
-def get_alternative_english_versions(driver, website_url):
+def get_links(driver, website_url):
+    # apply a regxp that includes all HTML links (href) on the site that contain a URL
+    # excluding files hosted on the site, like images, css, xml etc.
+    try:
+        driver.get(website_url)
+    except Exception as e:
+        return []  # e.g. we do not expect all sites to be in another language and have an English version
+    response = requests.get(website_url)
+    if response.status_code != 200:  # e.g. if we are in 404, page not found
+        return []
+
+    page_txt = driver.page_source
+    links_pt = re.compile('href='
+                          '((\S)+\.([^\s"])+'  # absolute URL
+                          '|"/([^\s."])+)')  # or: relative URL
+    matches = [xp.group(0) for xp in re.finditer(links_pt, page_txt)]
+    all_links = [s.replace('href="', "") for s in matches]
+    subpage_links = list(set([l for l in all_links if (l.startswith(website_url) or l.startswith("/"))]))
+    extensions_to_exclude = ["xml", "css", "js", "png", "jpg", "jpeg", "json", "ico", "fonts"]
+    subpage_links = list(filter(lambda l: not (any([ext in l for ext in extensions_to_exclude])), subpage_links))
+
+    return subpage_links
+
+
+def get_page_links(driver, website_url):
+    page_links = get_links(driver, website_url)
     # If the site is not in English, check whether there is an English version (extension or subpage)
     soup = bs(driver.page_source, features="lxml")
     visible_text = soup.getText(separator=" ")  # exclude HTMl code for the purpose of language identification
@@ -33,28 +74,13 @@ def get_alternative_english_versions(driver, website_url):
 
     if site_language != 'en':
         extension_pt = re.compile('\.([\S]){2,5}$')
-        alternate_urls = [re.sub(extension_pt, ".en", website_url), website_url + "/en"]
+        alternate_urls = [re.sub(extension_pt, ".en", website_url), website_url + "en"]
         logging.info("alternate_urls: " + str(alternate_urls))
-    else:
-        alternate_urls =[]
+        for url in alternate_urls:
+            page_links = page_links + get_links(driver, url)
 
-    return alternate_urls
+    return page_links
 
-
-def get_subpage_links(driver, website_url):
-    # apply a regxp that includes all HTML links (href) on the site that contain a URL
-    # excluding files hosted on the site, like images, css, xml etc.
-    page_txt = driver.page_source
-    links_pt = re.compile('href='
-                          '((\S)+\.([^\s"])+'  # absolute URL
-                          '|"/([^\s."])+)')  # or: relative URL
-    matches = [xp.group(0) for xp in re.finditer(links_pt, page_txt)]
-    all_links = [s.replace('href="', "") for s in matches]
-    subpage_links = list(set([l for l in all_links if (l.startswith(website_url) or l.startswith("/"))]))
-    extensions_to_exclude = ["xml", "css", "js", "png", "jpg", "jpeg", "json"]
-    subpage_links = list(filter(lambda l: not(any([ext in l for ext in extensions_to_exclude])), subpage_links))
-
-    return subpage_links
 
 
 def get_emails(page_txt):
@@ -85,10 +111,10 @@ def get_phone_numbers(driver):
 
 
 def get_relevant_subpages(subpages_urls_ls, website_url):
-    # We need to get the URLs to:
+    # Gets the URLs to:
     # ○ Contact pages; e.g. contact, impressum, kontakt
-    # ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy-policy, datenschutz, politique-de-confidentialite
-    # ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, https://kriim.com/en/pages/quienes-somos
+    # ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy-policy, datenschutz, confidentialité
+    # ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, quienes-somos
 
     subpages_urls = []
     for url in subpages_urls_ls:
@@ -107,6 +133,10 @@ def get_relevant_subpages(subpages_urls_ls, website_url):
                             "mission", "om-os", "sobre-nos", "nous"]
     about_us_pages = [url for url in subpages_urls if any([aid in url for aid in about_us_identifiers])]
 
+    contact_pages = remove_nearduplicates(contact_pages)
+    legal_pages = remove_nearduplicates(legal_pages)
+    about_us_pages = remove_nearduplicates(about_us_pages)
+
     return contact_pages, legal_pages, about_us_pages
 
 
@@ -122,7 +152,7 @@ def retrieve_info():
 
     driver = get_webdriver()
 
-    # companies = companies[0:3]
+    companies = companies[6:7]
     Utils.init_logging("Info.log")
 
     # output file. Since it takes > 20 minutes, we save the partial results
@@ -139,13 +169,7 @@ def retrieve_info():
             logging.warning(e)
             continue
 
-        subpage_links = get_subpage_links(driver, website_url)
-        alt_urls = get_alternative_english_versions(driver, website_url)
-        for alt_url in alt_urls:
-            try:
-                subpage_links = subpage_links + get_subpage_links(driver, alt_url)
-            except Exception as e:
-                continue  # we do not expect all sites to be in another language and have an English version
+        subpage_links = remove_nearduplicates(get_page_links(driver, website_url))
         logging.info("List of subpages: " + str(subpage_links))
 
         contact_pages, legal_pages, about_us_pages = get_relevant_subpages(subpage_links, website_url)

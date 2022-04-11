@@ -67,13 +67,7 @@ def tf_idf():
             logging.warning(e)
             continue
 
-        subpage_links = T1.get_subpage_links(driver, website_url)
-        alt_urls = T1.get_alternative_english_versions(driver, website_url)
-        for alt_url in alt_urls:
-            try:
-                subpage_links = subpage_links + T1.get_subpage_links(driver, alt_url)
-            except Exception as e:
-                continue  # we do not expect all sites to be in another language and have an English version
+        subpage_links = T1.get_page_links(driver, website_url)
         logging.info("List of subpages: " + str(subpage_links))
 
         contact_pages, legal_pages, about_us_pages = T1.get_relevant_subpages(subpage_links, website_url)
@@ -88,7 +82,7 @@ def tf_idf():
             about_us_text = about_us_text + subpage_text
         documents_dict[website_url] = website_text + " " + about_us_text
 
-    websites = companies["website"].tolist().sorted()
+    websites = sorted(companies["website"].tolist())
     return websites
 
 
