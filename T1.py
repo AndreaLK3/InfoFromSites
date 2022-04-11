@@ -9,15 +9,8 @@ import csv
 from selenium import webdriver
 from bs4 import BeautifulSoup as bs
 import string
+import langid
 
-# temp: add:
-# URL to:
-# ○ Contact pages; e.g. contact, impressum, kontakt
-# ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy, privacy-policy, terms-conditions,
-# legal-information, datenschutz, politique-de-confidentialite
-# ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, https://kriim.com/en/pages/quienes-somos
-# n: Subpage:https://plumetec.it/en: you need to use it as a new root page, if you want to avoid translations
-# or an alternate site, https://taxymatch.com/en
 
 def get_webdriver():
     # We need a Selenium webdriver to get 100% of the text from dynamic webpages that rely on javascript
@@ -31,7 +24,27 @@ def get_webdriver():
     return driver
 
 
-def get_subpage_links(website_url, page_txt):
+def get_alternative_english_versions(driver, website_url):
+    # If the site is not in English, check whether there is an English version (extension or subpage)
+    soup = bs(driver.page_source, features="lxml")
+    visible_text = soup.getText(separator=" ")  # exclude HTMl code for the purpose of language identification
+    site_language = langid.classify(visible_text)[0]
+    logging.info("site language: " + site_language)
+
+    if site_language != 'en':
+        extension_pt = re.compile('\.([\S]){2,5}$')
+        alternate_urls = [re.sub(extension_pt, ".en", website_url), website_url + "/en"]
+        logging.info("alternate_urls: " + str(alternate_urls))
+    else:
+        alternate_urls =[]
+
+    return alternate_urls
+
+
+def get_subpage_links(driver, website_url):
+    # apply a regxp that includes all HTML links (href) on the site that contain a URL
+    # excluding files hosted on the site, like images, css, xml etc.
+    page_txt = driver.page_source
     links_pt = re.compile('href='
                           '((\S)+\.([^\s"])+'  # absolute URL
                           '|"/([^\s."])+)')  # or: relative URL
@@ -39,8 +52,10 @@ def get_subpage_links(website_url, page_txt):
     all_links = [s.replace('href="', "") for s in matches]
     subpage_links = list(set([l for l in all_links if (l.startswith(website_url) or l.startswith("/"))]))
     extensions_to_exclude = ["xml", "css", "js", "png", "jpg", "jpeg", "json"]
-    subpage_links = list(filter(lambda l: not(any([(ext in l for ext in extensions_to_exclude])), subpage_links))
+    subpage_links = list(filter(lambda l: not(any([ext in l for ext in extensions_to_exclude])), subpage_links))
+
     return subpage_links
+
 
 def get_emails(page_txt):
     emails_pt = re.compile("(?<=mailto:)?([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,5})+")
@@ -49,12 +64,12 @@ def get_emails(page_txt):
                            "jpg"]  # to exclude loader@2x.gif, etc.
     email_addresses_ls = list(filter(lambda addr:
                                      not (any([fragment in addr for fragment in not_email_fragments])), addresses))
-
     return email_addresses_ls
 
 
-def get_phone_numbers(page_txt):
+def get_phone_numbers(driver):
     # The phone numbers are taken from the visible text of the HTML pages, thus we need BeautifulSoup
+    page_txt = driver.page_source
     soup = bs(page_txt, features="lxml")
     visible_text = soup.getText(separator=" _ ")
     numbers_pt = re.compile("(?<=el|ne)?"  # tel/phone
@@ -69,13 +84,45 @@ def get_phone_numbers(page_txt):
     return phone_numbers_ls
 
 
+def get_relevant_subpages(subpages_urls_ls, website_url):
+    # We need to get the URLs to:
+    # ○ Contact pages; e.g. contact, impressum, kontakt
+    # ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy-policy, datenschutz, politique-de-confidentialite
+    # ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, https://kriim.com/en/pages/quienes-somos
+
+    subpages_urls = []
+    for url in subpages_urls_ls:
+        if url.startswith("/"):
+            subpages_urls.append(website_url+url)
+        else:
+            subpages_urls.append(url)
+
+    contact_identifiers = ["contact", "impressum", "kontakt", "contatti", "contacto", "contato"]
+    contact_pages = [url for url in subpages_urls if any([cid in url for cid in contact_identifiers])]
+
+    legal_identifiers = ["privacy", "legal", "terms", "datenschutz", "confidentialit", "privacidad", "datenschutz"]
+    legal_pages = [url for url in subpages_urls if any([lid in url for lid in legal_identifiers])]
+
+    about_us_identifiers = ["about", "who-we-are", "qui-nous-sommes", "Über-uns", "somos",
+                            "mission", "om-os", "sobre-nos", "nous"]
+    about_us_pages = [url for url in subpages_urls if any([aid in url for aid in about_us_identifiers])]
+
+    return contact_pages, legal_pages, about_us_pages
+
+
+
 def retrieve_info():
+    # Steps:
+    # gather the subpages of the site at 1 level of depth
+    # if there is a version of the site in English, add the subpages from it
+    # determine the Contact, Legal, and About Us pages
+    # run a regex search on the site and its significant (see above) subpages for e-mails and phone numbers
+
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-    # rounds = pd.read_excel("InputData.xlsx", sheet_name=1)
 
     driver = get_webdriver()
 
-    # companies = companies[50:51]
+    # companies = companies[0:3]
     Utils.init_logging("Info.log")
 
     # output file. Since it takes > 20 minutes, we save the partial results
@@ -91,17 +138,27 @@ def retrieve_info():
         except Exception as e:
             logging.warning(e)
             continue
-        page_txt = driver.page_source
-        # Steps:
-        # gather the subpages of the site at 1 level of depth
-        # run a regex search on the site and its subpages for {alphanum}+@{alphanum}+.{alphabet}+, and phone numbers
-        subpage_links = get_subpage_links(website_url, page_txt)
-        # logging.info("List of subpages: " + str(subpage_links))
+
+        subpage_links = get_subpage_links(driver, website_url)
+        alt_urls = get_alternative_english_versions(driver, website_url)
+        for alt_url in alt_urls:
+            try:
+                subpage_links = subpage_links + get_subpage_links(driver, alt_url)
+            except Exception as e:
+                continue  # we do not expect all sites to be in another language and have an English version
+        logging.info("List of subpages: " + str(subpage_links))
+
+        contact_pages, legal_pages, about_us_pages = get_relevant_subpages(subpage_links, website_url)
 
         site_emails = set()
         site_phones = set()
 
-        for subpage_url in subpage_links:
+        if len(subpage_links) < 50:
+            pages_to_consult = subpage_links
+        else:
+            pages_to_consult = contact_pages + legal_pages + about_us_pages
+
+        for subpage_url in pages_to_consult:
             if subpage_url.startswith(("/")):  # relative URL
                 subpage_url = website_url + subpage_url[1:]
             logging.info("Subpage:" + subpage_url)
@@ -113,32 +170,23 @@ def retrieve_info():
             page_txt = driver.page_source
 
             email_addresses_ls = get_emails(page_txt)
-            if len(email_addresses_ls) > 0:
-                logging.info("Subpage: " + subpage_url + " ; E-mails: " + str(email_addresses_ls))
+            # if len(email_addresses_ls) > 0:
+            #    logging.info("Subpage: " + subpage_url + " ; E-mails: " + str(email_addresses_ls))
             site_emails = site_emails.union(set(email_addresses_ls))
 
-            phone_numbers = get_phone_numbers(page_txt)
-            if len(phone_numbers) > 0:
-                logging.info("Subpage: " + subpage_url + " ; Phone numbers: " + str(phone_numbers))
+            phone_numbers = get_phone_numbers(driver)
+            #if len(phone_numbers) > 0:
+            #    logging.info("Subpage: " + subpage_url + " ; Phone numbers: " + str(phone_numbers))
             site_phones = site_phones.union(set(phone_numbers))
 
             time.sleep(1)  # to avoid rate limits on HTTP requests to a website
 
-        logging.info("Site: " + website_url + " ; e-mails: " + str(site_emails) + " ; phone numbers: " + str(site_phones))
+        logging.info("Site: " + website_url + " ; e-mails: " + str(site_emails) + " ; phone numbers: " + str(site_phones)
+                     + " ; contact_pages: " + str(contact_pages) + " ; legal_pages: " + str(legal_pages) +
+                     " ; about_us_pages: " + str(about_us_pages))
 
-        writer.writerow([website_url,str(site_emails), str(site_phones)])
+        writer.writerow([website_url,str(site_emails), str(site_phones),
+                         str(contact_pages), str(legal_pages), str(about_us_pages)])
 
     driver.close()
     f.close()
-
-    # Examining the current e-mail and phone results: which sites have missing / questionable elements?
-    # grofit.eu: no phone, confirmed.
-    # app.wasteout.ru : nothing. it's in Russian and most of the site is not accessible
-    # agrionica.com : nothing. Empty page, with a title "insufficient money on the account" in Ciryllic
-    # 5: cyberquant.org: why 3757791 among the phone numbers? because of 3,757,791
-    # 6: plumetec.it: why 2105159? Because of "Numero REA: 2105159"
-    # 7: ilovesnacks.co.uk: why 197624269, 09178679? Because of "Company registration number, VAT number"
-    # 8: tukea.de : no phone. confirmed
-    # 9: birch.earth: no phone. And why did I not get info@birch.earth? because it has 5 letters in its custom domain
-    # circolution.com: why 346035722? Because of "Bel ons: 0341 842121"
-    # innova.co.uk: why '01242388633', '+442045308369', '01242371990', '02037874320', they are actually phone numbers
