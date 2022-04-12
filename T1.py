@@ -164,13 +164,9 @@ def retrieve_info():
             page_txt = driver.page_source
 
             email_addresses_ls = get_emails(page_txt)
-            # if len(email_addresses_ls) > 0:
-            #    logging.info("Subpage: " + subpage_url + " ; E-mails: " + str(email_addresses_ls))
             site_emails = site_emails.union(set(email_addresses_ls))
 
             phone_numbers = get_phone_numbers(driver)
-            #if len(phone_numbers) > 0:
-            #    logging.info("Subpage: " + subpage_url + " ; Phone numbers: " + str(phone_numbers))
             site_phones = site_phones.union(set(phone_numbers))
 
             time.sleep(1)  # to avoid rate limits on HTTP requests to a website
