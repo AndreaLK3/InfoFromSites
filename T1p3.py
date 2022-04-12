@@ -5,6 +5,37 @@ import logging
 from bs4 import BeautifulSoup as bs
 import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
+import langid
+
+def filter_for_english_subpages(driver, urls):
+    # If we have pages in multiple languages and only a few of them are in EN, drop those that are not
+    # If there is only one language or EN is not present, the list is unchanged
+    urls_en = []
+    languages = []
+    for url in urls:
+        driver.get(url)
+        soup = bs(driver.page_source, features="lxml")
+        visible_text = soup.getText(separator=" ")  # exclude HTMl code for the purpose of language identification
+        site_language = langid.classify(visible_text)[0]
+        languages.append(site_language)
+    if len(set(languages))>1 and ('en' in set(languages)):
+        for i in range(len(urls)):
+            if languages[i]== 'en':
+                urls_en.append(urls[i])
+    else:
+        urls_en = urls
+    return urls_en
+
+
+def get_weighted_sentence(sentence, site, websites, tfidf_obj, tfidf_mat):
+
+    weights = []
+    for word in sentence:
+        doc_idx = websites.index(site)
+        w_idx = tfidf_obj.vocabulary_[word]
+        weights.append(tfidf_mat[doc_idx][w_idx])
+
+    return sum(weights) / len(weights)
 
 
 def get_headers():
@@ -12,7 +43,7 @@ def get_headers():
     # startups in Europe)
 
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-    companies = companies[0:20]
+    companies = companies[5:8]
     driver = T1.get_webdriver()
 
     # companies = companies[0:3]
@@ -31,30 +62,18 @@ def get_headers():
         header_tags = soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"])
         header_strings = [tag.string for tag in header_tags]
 
-        alt_urls = T1.get_alternative_english_versions(driver, website_url)
-        for alt_url in alt_urls:
-            try:
-                response = requests.get(alt_url)
-                if response.status_code!= 200:
-                    continue  # probably a 404, page not found
-                driver.get(alt_url)
-                soup = bs(driver.page_source, features="lxml")
-                header_tags_2 = soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"])
-                header_strings_2 = [tag.string for tag in header_tags_2]
-                header_strings = header_strings_2
-            except Exception as e:
-                continue  # we do not expect all sites to be in another language and have an English version
-
         logging.info(header_strings)
 
     driver.close()
+
+    return header_strings
 
 
 def tf_idf():
     Utils.init_logging("TF-IDF.log")
 
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-    companies = companies[0:8]
+    companies = companies[5:8]
     driver = T1.get_webdriver()
 
     documents_dict = dict()
@@ -68,6 +87,9 @@ def tf_idf():
             continue
 
         subpage_links = T1.get_page_links(driver, website_url)
+        # if we have pages in English and in another language, keep only the former
+
+
         logging.info("List of subpages: " + str(subpage_links))
 
         contact_pages, legal_pages, about_us_pages = T1.get_relevant_subpages(subpage_links, website_url)
@@ -81,8 +103,12 @@ def tf_idf():
             subpage_text = soup.getText(separator=" ")
             about_us_text = about_us_text + subpage_text
         documents_dict[website_url] = website_text + " " + about_us_text
+        print(documents_dict.keys())
 
     websites = sorted(companies["website"].tolist())
-    return websites
 
+    docs = [documents_dict[k] for k in websites]
+    tfidf_obj = TfidfVectorizer()
+    tfidf_mat = tfidf_obj.fit_transform(docs, y=None)
 
+    return websites, tfidf_obj, tfidf_mat
