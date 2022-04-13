@@ -1,33 +1,150 @@
 INFO : 
+Page: https://www.grofit.eu/
+INFO : initializing identifier
+INFO : site language: en
+INFO : List of subpages: ['https://www.grofit.eu/why-impact-invest-now', 'https://www.grofit.eu/partners', 'https://www.grofit.eu/blog', 'https://www.grofit.eu/contact', 'https://www.grofit.eu/privacy', 'https://www.grofit.eu/cookies', 'https://www.grofit.eu/impact-investing']
+INFO : Subpage:https://www.grofit.eu/why-impact-invest-now
+INFO : Subpage:https://www.grofit.eu/partners
+INFO : Subpage:https://www.grofit.eu/blog
+INFO : Subpage:https://www.grofit.eu/contact
+INFO : Subpage:https://www.grofit.eu/privacy
+INFO : Subpage:https://www.grofit.eu/cookies
+INFO : Subpage:https://www.grofit.eu/impact-investing
+INFO : Site: https://www.grofit.eu/ ; e-mails: {'hi@grofit.eu'} ; phone numbers: set() ; contact_pages: ['https://www.grofit.eu/contact'] ; legal_pages: ['https://www.grofit.eu/privacy'] ; about_us_pages: []
+INFO : 
+Page: https://www.corrosionradar.com/
+INFO : site language: en
+INFO : List of subpages: ['https://www.corrosionradar.com/applications', 'https://www.corrosionradar.com/newsarchive', 'https://www.corrosionradar.com/news', 'https://www.corrosionradar.com/events', 'https://www.corrosionradar.com/careers', 'https://www.corrosionradar.com/people-1', 'https://www.corrosionradar.com/products', 'https://www.corrosionradar.com/contact', 'https://www.corrosionradar.com/technology']
+INFO : Subpage:https://www.corrosionradar.com/applications
+INFO : Subpage:https://www.corrosionradar.com/newsarchive
+INFO : Subpage:https://www.corrosionradar.com/news
+INFO : Subpage:https://www.corrosionradar.com/events
+INFO : Subpage:https://www.corrosionradar.com/careers
+INFO : Subpage:https://www.corrosionradar.com/people-1
+INFO : Subpage:https://www.corrosionradar.com/products
+INFO : Subpage:https://www.corrosionradar.com/contact
+INFO : Subpage:https://www.corrosionradar.com/technology
+INFO : Site: https://www.corrosionradar.com/ ; e-mails: {'info@corrosionradar.com', 'hr@corrosionradar.com'} ; phone numbers: {'+441223608861'} ; contact_pages: ['https://www.corrosionradar.com/contact'] ; legal_pages: [] ; about_us_pages: []
+INFO : 
+Page: https://www.codioimpact.com/
+INFO : site language: en
+INFO : List of subpages: ['/about-us', '/de', '/imprint', '/request-demo', '/supply-chain-act', '/en-blog/5-new-requirements-for-sustainability-reporting-in-2022', '/en-blog/guide-german-supply-chain-law', '/privacy-policy', 'https://www.codioimpact.com/en-blog/5-new-requirements-for-sustainability-reporting-in-2022', '/en-blog/why-materiality-analyses-are-so-important-for-companies', '/contact']
+INFO : Subpage:https://www.codioimpact.com/about-us
+INFO : Subpage:https://www.codioimpact.com/de
+INFO : Subpage:https://www.codioimpact.com/imprint
+INFO : Subpage:https://www.codioimpact.com/request-demo
+INFO : Subpage:https://www.codioimpact.com/supply-chain-act
+INFO : Subpage:https://www.codioimpact.com/en-blog/5-new-requirements-for-sustainability-reporting-in-2022
+INFO : Subpage:https://www.codioimpact.com/en-blog/guide-german-supply-chain-law
+INFO : Subpage:https://www.codioimpact.com/privacy-policy
+INFO : Subpage:https://www.codioimpact.com/en-blog/5-new-requirements-for-sustainability-reporting-in-2022
+INFO : Subpage:https://www.codioimpact.com/en-blog/why-materiality-analyses-are-so-important-for-companies
+INFO : Subpage:https://www.codioimpact.com/contact
+INFO : Site: https://www.codioimpact.com/ ; e-mails: {'jobs@codioimpact.com', 'tilman@codioimpact.com', 'sonja@codioimpact.com', 'info@codioimpact.com'} ; phone numbers: {'+491713186381'} ; contact_pages: ['https://www.codioimpact.com//contact'] ; legal_pages: ['https://www.codioimpact.com//privacy-policy'] ; about_us_pages: ['https://www.codioimpact.com//about-us']
+INFO : 
+Page: https://app.wasteout.ru/
+INFO : site language: ru
+INFO : alternate_urls: ['https://app.wasteout.en', 'https://app.wasteout.ru/en']
+INFO : List of subpages: ['https://app.wasteout.ru/web/plan/workdays', 'https://app.wasteout.ru/web/restpoints/', 'https://app.wasteout.ru/web/pswdrecover', 'https://app.wasteout.ru/web/dictionarys', 'https://app.wasteout.ru/web/', 'https://app.wasteout.ru/web/overview/', 'https://app.wasteout.ru/web/help', 'https://app.wasteout.ru/web/prop']
+INFO : Subpage:https://app.wasteout.ru/web/plan/workdays
+INFO : Subpage:https://app.wasteout.ru/web/restpoints/
+INFO : Subpage:https://app.wasteout.ru/web/pswdrecover
+INFO : Subpage:https://app.wasteout.ru/web/dictionarys
+INFO : Subpage:https://app.wasteout.ru/web/
+INFO : Subpage:https://app.wasteout.ru/web/overview/
+INFO : Subpage:https://app.wasteout.ru/web/help
+INFO : Subpage:https://app.wasteout.ru/web/prop
+INFO : Site: https://app.wasteout.ru/ ; e-mails: set() ; phone numbers: set() ; contact_pages: [] ; legal_pages: [] ; about_us_pages: []
+INFO : 
+Page: https://www.agrionica.com/
+INFO : site language: ru
+INFO : alternate_urls: ['https://www.agrionica.en', 'https://www.agrionica.com/en']
+INFO : List of subpages: []
+INFO : Site: https://www.agrionica.com/ ; e-mails: set() ; phone numbers: set() ; contact_pages: [] ; legal_pages: [] ; about_us_pages: []
+INFO : 
+Page: https://www.cyberquant.org/
+INFO : site language: en
+INFO : List of subpages: ['https://www.cyberquant.org/privacy-policy/', 'https://www.cyberquant.org/blog-archive/', 'https://www.cyberquant.org/platform/', 'https://www.cyberquant.org/vip-protection-programme/', 'https://www.cyberquant.org/', 'https://www.cyberquant.org/solutions/', '/privacy-policy', '//s.w.org']
+INFO : Subpage:https://www.cyberquant.org/privacy-policy/
+INFO : Subpage:https://www.cyberquant.org/blog-archive/
+INFO : Subpage:https://www.cyberquant.org/platform/
+INFO : Subpage:https://www.cyberquant.org/vip-protection-programme/
+INFO : Subpage:https://www.cyberquant.org/
+INFO : Subpage:https://www.cyberquant.org/solutions/
+INFO : Subpage:https://www.cyberquant.org/privacy-policy
+INFO : Subpage:https://www.cyberquant.org//s.w.org
+INFO : Site: https://www.cyberquant.org/ ; e-mails: {'contact@cyberquant.com', 'kontakt@spacedigitalgroup.com'} ; phone numbers: {'+48574121782', '+48606933102'} ; contact_pages: [] ; legal_pages: ['https://www.cyberquant.org/privacy-policy/'] ; about_us_pages: []
+INFO : 
 Page: https://plumetec.it/
 INFO : site language: it
 INFO : alternate_urls: ['https://plumetec.en', 'https://plumetec.it/en']
-INFO : List of subpages: ['https://plumetec.it/servizi-ricerca-sviluppo-consulenza-formazione-divulgazione-plasma-freddo', 'https://plumetec.it/mappa-sito-alta-tecnologia-plasma-freddo', 'https://plumetec.it/disclaimer-contenuti-immagini-note-legali/', 'https://plumetec.it/filtrazione-plasma-freddo-filtranti-flessibili', 'https://plumetec.it/eventi-news-tecnologia-plasma-freddo', 'https://plumetec.it/privacy-cookies-policy', 'https://plumetec.it/en', 'https://plumetec.it/flessibili-trattamento-film-plasma-freddo-funzionalizzazione-superfici', 'https://plumetec.it/notizie/inaugurato-nuovo-sito-plumetec-svelato-logo-plume-srl.html', 'https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma/#modulo_contatto', '//www.google.com', 'https://plumetec.it/tessile-trattamento-plasma-funzionalizzazione-tessuti', 'https://plumetec.it/strumenti-privacy', 'https://plumetec.it/chi-siamo-mission-aziendale', '//s.w.org', 'https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma', 'https://plumetec.it/en/contacts-information-services-plasma-technology', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#researchDevelopment', 'https://plumetec.it/en/privacy-tools', 'https://plumetec.it/en/technology-cold-plasma-supersonic-atmospheric-low-pressure', 'https://plumetec.it/en/news-events-cold-plasma-technology', 'https://plumetec.it/en/news/plume-srl-launches-new-website-reveals-logo.html', 'https://plumetec.it/en/filtration-cold-plasma-filtering-flexibles', 'https://plumetec.it/en/about-us-company-mission-our-team', 'https://plumetec.it/en/textile-treatment-plasma-fabric-functionalization', 'https://plumetec.it/en/flexibles-cold-plasma-treatment-film-functionalization-surfaces', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma']
+INFO : List of subpages: ['https://plumetec.it/en', '//www.google.com', 'https://plumetec.it/flessibili-trattamento-film-plasma-freddo-funzionalizzazione-superfici', 'https://plumetec.it/filtrazione-plasma-freddo-filtranti-flessibili/', 'https://plumetec.it/privacy-cookies-policy', 'https://plumetec.it/tessile-trattamento-plasma-funzionalizzazione-tessuti', 'https://plumetec.it/eventi-news-tecnologia-plasma-freddo', 'https://plumetec.it/servizi-ricerca-sviluppo-consulenza-formazione-divulgazione-plasma-freddo/#divulgazione', 'https://plumetec.it/notizie/inaugurato-nuovo-sito-plumetec-svelato-logo-plume-srl.html', 'https://plumetec.it/strumenti-privacy', 'https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma', 'https://plumetec.it/servizi-ricerca-sviluppo-consulenza-formazione-divulgazione-plasma-freddo', 'https://plumetec.it/mappa-sito-alta-tecnologia-plasma-freddo', 'https://plumetec.it/chi-siamo-mission-aziendale', 'https://plumetec.it/disclaimer-contenuti-immagini-note-legali/', '//s.w.org', 'https://plumetec.it/en/technology-cold-plasma-supersonic-atmospheric-low-pressure', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#bConsulting', 'https://plumetec.it/en/contacts-information-services-plasma-technology', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#dissemination', 'https://plumetec.it/en/filtration-cold-plasma-filtering-flexibles/', 'https://plumetec.it/en/about-us-company-mission-our-team', 'https://plumetec.it/en/privacy-tools', 'https://plumetec.it/en/news/plume-srl-launches-new-website-reveals-logo.html', 'https://plumetec.it/en/flexibles-cold-plasma-treatment-film-functionalization-surfaces/', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#researchDevelopment', 'https://plumetec.it/en/textile-treatment-plasma-fabric-functionalization', 'https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma', 'https://plumetec.it/en/news-events-cold-plasma-technology']
+INFO : Subpage:https://plumetec.it/en
+INFO : Subpage:https://plumetec.it//www.google.com
+INFO : Subpage:https://plumetec.it/flessibili-trattamento-film-plasma-freddo-funzionalizzazione-superfici
+INFO : Subpage:https://plumetec.it/filtrazione-plasma-freddo-filtranti-flessibili/
+INFO : Subpage:https://plumetec.it/privacy-cookies-policy
+INFO : Subpage:https://plumetec.it/tessile-trattamento-plasma-funzionalizzazione-tessuti
+INFO : Subpage:https://plumetec.it/eventi-news-tecnologia-plasma-freddo
+INFO : Subpage:https://plumetec.it/servizi-ricerca-sviluppo-consulenza-formazione-divulgazione-plasma-freddo/#divulgazione
+INFO : Subpage:https://plumetec.it/notizie/inaugurato-nuovo-sito-plumetec-svelato-logo-plume-srl.html
+INFO : Subpage:https://plumetec.it/strumenti-privacy
+INFO : Subpage:https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma
 INFO : Subpage:https://plumetec.it/servizi-ricerca-sviluppo-consulenza-formazione-divulgazione-plasma-freddo
 INFO : Subpage:https://plumetec.it/mappa-sito-alta-tecnologia-plasma-freddo
-INFO : Subpage:https://plumetec.it/disclaimer-contenuti-immagini-note-legali/
-INFO : Subpage:https://plumetec.it/filtrazione-plasma-freddo-filtranti-flessibili
-INFO : Subpage:https://plumetec.it/eventi-news-tecnologia-plasma-freddo
-INFO : Subpage:https://plumetec.it/privacy-cookies-policy
-INFO : Subpage:https://plumetec.it/en
-INFO : Subpage:https://plumetec.it/flessibili-trattamento-film-plasma-freddo-funzionalizzazione-superfici
-INFO : Subpage:https://plumetec.it/notizie/inaugurato-nuovo-sito-plumetec-svelato-logo-plume-srl.html
-INFO : Subpage:https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma/#modulo_contatto
-INFO : Subpage:https://plumetec.it//www.google.com
-INFO : Subpage:https://plumetec.it/tessile-trattamento-plasma-funzionalizzazione-tessuti
-INFO : Subpage:https://plumetec.it/strumenti-privacy
 INFO : Subpage:https://plumetec.it/chi-siamo-mission-aziendale
+INFO : Subpage:https://plumetec.it/disclaimer-contenuti-immagini-note-legali/
 INFO : Subpage:https://plumetec.it//s.w.org
-INFO : Subpage:https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma
-INFO : Subpage:https://plumetec.it/en/contacts-information-services-plasma-technology
-INFO : Subpage:https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#researchDevelopment
-INFO : Subpage:https://plumetec.it/en/privacy-tools
 INFO : Subpage:https://plumetec.it/en/technology-cold-plasma-supersonic-atmospheric-low-pressure
-INFO : Subpage:https://plumetec.it/en/news-events-cold-plasma-technology
-INFO : Subpage:https://plumetec.it/en/news/plume-srl-launches-new-website-reveals-logo.html
-INFO : Subpage:https://plumetec.it/en/filtration-cold-plasma-filtering-flexibles
+INFO : Subpage:https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#bConsulting
+INFO : Subpage:https://plumetec.it/en/contacts-information-services-plasma-technology
+INFO : Subpage:https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#dissemination
+INFO : Subpage:https://plumetec.it/en/filtration-cold-plasma-filtering-flexibles/
 INFO : Subpage:https://plumetec.it/en/about-us-company-mission-our-team
+INFO : Subpage:https://plumetec.it/en/privacy-tools
+INFO : Subpage:https://plumetec.it/en/news/plume-srl-launches-new-website-reveals-logo.html
+INFO : Subpage:https://plumetec.it/en/flexibles-cold-plasma-treatment-film-functionalization-surfaces/
+INFO : Subpage:https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma/#researchDevelopment
 INFO : Subpage:https://plumetec.it/en/textile-treatment-plasma-fabric-functionalization
-INFO : Subpage:https://plumetec.it/en/flexibles-cold-plasma-treatment-film-functionalization-surfaces
 INFO : Subpage:https://plumetec.it/en/services-research-development-consulting-education-dissemination-cold-plasma
-INFO : Site: https://plumetec.it/ ; e-mails: {'srl@legalmail.it'} ; phone numbers: {'+390264482314', '+390264482391', '+390264482393', '2105159'} ; contact_pages: ['https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma/#modulo_contatto', 'https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma', 'https://plumetec.it/en/contacts-information-services-plasma-technology'] ; legal_pages: ['https://plumetec.it/disclaimer-contenuti-immagini-note-legali/', 'https://plumetec.it/privacy-cookies-policy', 'https://plumetec.it/strumenti-privacy', 'https://plumetec.it/en/privacy-tools'] ; about_us_pages: ['https://plumetec.it/chi-siamo-mission-aziendale', 'https://plumetec.it/en/about-us-company-mission-our-team']
+INFO : Subpage:https://plumetec.it/en/news-events-cold-plasma-technology
+INFO : Site: https://plumetec.it/ ; e-mails: {'srl@legalmail.it'} ; phone numbers: {'2105159', '+390264482391', '+390264482314', '+390264482393'} ; contact_pages: ['https://plumetec.it/contatti-informazioni-servizi-tecnologia-plasma', 'https://plumetec.it/en/contacts-information-services-plasma-technology'] ; legal_pages: ['https://plumetec.it/privacy-cookies-policy', 'https://plumetec.it/strumenti-privacy', 'https://plumetec.it/disclaimer-contenuti-immagini-note-legali/', 'https://plumetec.it/en/privacy-tools'] ; about_us_pages: ['https://plumetec.it/chi-siamo-mission-aziendale', 'https://plumetec.it/en/about-us-company-mission-our-team']
+INFO : 
+Page: https://www.ilovesnacks.co.uk/
+INFO : site language: en
+INFO : List of subpages: ['https://www.ilovesnacks.co.uk/shop/', 'https://www.ilovesnacks.co.uk/checkout/', 'https://www.ilovesnacks.co.uk/comments/feed/', '//www.dwin1.com', 'https://www.ilovesnacks.co.uk/about/', 'https://www.ilovesnacks.co.uk/cart/', 'https://www.ilovesnacks.co.uk/privacy-policy/', 'https://www.ilovesnacks.co.uk/legal-information/', 'https://www.ilovesnacks.co.uk/feed/', 'https://www.ilovesnacks.co.uk/', 'https://www.ilovesnacks.co.uk/terms-conditions/', '//s.w.org', 'https://www.ilovesnacks.co.uk/contact/']
+INFO : Subpage:https://www.ilovesnacks.co.uk/shop/
+INFO : Subpage:https://www.ilovesnacks.co.uk/checkout/
+INFO : Subpage:https://www.ilovesnacks.co.uk/comments/feed/
+INFO : Subpage:https://www.ilovesnacks.co.uk//www.dwin1.com
+INFO : Subpage:https://www.ilovesnacks.co.uk/about/
+INFO : Subpage:https://www.ilovesnacks.co.uk/cart/
+INFO : Subpage:https://www.ilovesnacks.co.uk/privacy-policy/
+INFO : Subpage:https://www.ilovesnacks.co.uk/legal-information/
+INFO : Subpage:https://www.ilovesnacks.co.uk/feed/
+INFO : Subpage:https://www.ilovesnacks.co.uk/
+INFO : Subpage:https://www.ilovesnacks.co.uk/terms-conditions/
+INFO : Subpage:https://www.ilovesnacks.co.uk//s.w.org
+INFO : Subpage:https://www.ilovesnacks.co.uk/contact/
+INFO : Site: https://www.ilovesnacks.co.uk/ ; e-mails: {'info@ilovesnacks.co.uk', 'office@ilovesnacks.co.uk'} ; phone numbers: {'197624269', '09178679'} ; contact_pages: ['https://www.ilovesnacks.co.uk/contact/'] ; legal_pages: ['https://www.ilovesnacks.co.uk/privacy-policy/', 'https://www.ilovesnacks.co.uk/legal-information/', 'https://www.ilovesnacks.co.uk/terms-conditions/'] ; about_us_pages: ['https://www.ilovesnacks.co.uk/about/']
+INFO : 
+Page: https://www.tukea.de/
+INFO : site language: de
+INFO : alternate_urls: ['https://www.tukea.en', 'https://www.tukea.de/en']
+INFO : List of subpages: ['/impressum/', '/testkundin-werden/', '/cookie-einstellungen/', '/datenschutz/']
+INFO : Subpage:https://www.tukea.de/impressum/
+INFO : Subpage:https://www.tukea.de/testkundin-werden/
+INFO : Subpage:https://www.tukea.de/cookie-einstellungen/
+INFO : Subpage:https://www.tukea.de/datenschutz/
+INFO : Site: https://www.tukea.de/ ; e-mails: {'datenschutz@jimdo.com', 'info@tukea.de', 'Datenschutz@jimdo.com'} ; phone numbers: set() ; contact_pages: ['https://www.tukea.de//impressum/'] ; legal_pages: ['https://www.tukea.de//datenschutz/'] ; about_us_pages: []
+INFO : 
+Page: https://www.birch.earth/
+INFO : site language: en
+INFO : List of subpages: ['https://www.birch.earth/product-category/community-projects/improved-cookstoves/', 'https://www.birch.earth/product-category/nature-based/woodland-creation/', 'https://www.birch.earth/product-category/renewable-energy/', 'https://www.birch.earth/product-category/nature-based/avoided-deforestation/', 'https://www.birch.earth/my-account/', 'https://www.birch.earth/product-category/technology/', 'https://www.birch.earth/privacy-policy/', 'https://www.birch.earth/', 'https://www.birch.earth/product-category/renewable-energy/hydro-power/', 'https://www.birch.earth/shop/', 'https://www.birch.earth/comments/feed/', 'https://www.birch.earth/product-category/nature-based/', 'https://www.birch.earth/product-category/renewable-energy/wind-power/', 'https://www.birch.earth/terms-and-conditions/', 'https://www.birch.earth/wishlist/', 'https://www.birch.earth/sellers/', 'https://www.birch.earth/product-category/community-projects/water-sanitation-hygiene/', 'https://www.birch.earth/product-category/community-projects/', 'https://www.birch.earth/feed/', 'https://www.birch.earth/my-orders/', 'https://www.birch.earth/my-account/lost-password/', 'https://www.birch.earth/vendors-how-it-works/', 'https://www.birch.earth/product-category/nature-based/peatland-restoration/', 'https://www.birch.earth/product-category/renewable-energy/solar-power/', 'https://www.birch.earth/product-category/technology/direct-air-capture/', 'https://www.birch.earth/cart/', 'https://www.birch.earth/product-category/technology/carbon-capture-storage/', '//s.w.org']
+INFO : Subpage:https://www.birch.earth/product-category/community-projects/improved-cookstoves/
+INFO : Subpage:https://www.birch.earth/product-category/nature-based/woodland-creation/
+INFO : Subpage:https://www.birch.earth/product-category/renewable-energy/
+INFO : Subpage:https://www.birch.earth/product-category/nature-based/avoided-deforestation/
+INFO : Subpage:https://www.birch.earth/my-account/
+INFO : Subpage:https://www.birch.earth/product-category/technology/
+INFO : Subpage:https://www.birch.earth/privacy-policy/

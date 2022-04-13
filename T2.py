@@ -1,14 +1,4 @@
-# InputData.xlsx, worksheet Fround contains a list of 50 articles dealing with the founding round. In the
-# worksheet, the candidate will find the name of the organization, the website, the link to news covering
-# the funding round of the company and the company unique identifier (client_id).
-# The candidate shall create a Python script to to extract the below information for each of the news_url
-# listed:
-# 1. The amount of the round as float (preferably denominated in original currency - in the case
-# above SEK);
-# 2. The date of the round as Timestamp - the article publication date;
-# 3. The investors taking part in the round.
-# Please note that point 3 is OPTIONAL.
-#
+
 import re
 import pandas as pd
 import logging
@@ -16,7 +6,8 @@ import Utils
 from bs4 import BeautifulSoup as bs
 import csv
 from dateutil import parser
-import datetime
+import spacy
+import statistics
 
 def get_date_pt():
     """ Get the regex pattern to locate a date in the text"""
@@ -39,25 +30,86 @@ def get_money_pt():
                            "BTC|XBT|₿|ETH|Ξ)"
     numbers = "("+ "([0-9,.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)(\s)?" + ")"
     numbers_and_currency = "(" + numbers + all_currency_symbols + "|" + all_currency_symbols + numbers + ")"
-    text_money_pt = re.compile(numbers_and_currency + '( digit )?'
-                                '([mM]|(\s(million(s)?|Million(s)?|thousand(s)?)))')
+    text_money_pt = re.compile(numbers_and_currency + '( digit )?'+
+                                '([mM]|(\s(million(s)?|Million(s)?|thousand(s)?)))?')
 
     # url_money_pt = re.compile("(\d){1,2}(-(\d){1,2})?(-)?([mM](illion)?)")
 
     return text_money_pt
 
+def retrieve_money(nlp, visible_text, soup):
+    # The amount of the round as float (preferably denominated in original currency - in the case above SEK);
+    # - check if the headers contain information that the regex can pick up
+    # - Use SpaCy on the text: get a majority vote on 'money' entities (n: keep only tokens with numbers in the list).
+    # - If no majority is available, use the regex on the text
+
+    header_tags = soup.find("h")
+    header_strings = [tag.string for tag in header_tags]
+    money_pt = get_money_pt()
+    all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(money_pt, " ".join(header_strings))]))
+    if len(all_mentions_of_money) > 0:
+        funding = all_mentions_of_money[0]
+    else:  # nothing found in the headers. Use SpaCy on the page
+        for doc in nlp.pipe([visible_text]):
+            for token in doc:
+                if token.ent_type_ == "MONEY":
+                    all_mentions_of_money.append(token)
+
+        counts = [all_mentions_of_money.count(i) for i in all_mentions_of_money]
+        different_counts = set(counts)
+        if len(different_counts) > 1:  # i.e. one of the entries is found more times than the other
+            funding = statistics.mode(all_mentions_of_money)
+        else:  # if SpaCy does not give us a definite answer, we use the regex
+            all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(money_pt, visible_text)]))
+            if len(all_mentions_of_money) > 0:
+                funding = all_mentions_of_money[0]  # get the first. The next ones may be total funding, investor etc.
+            else:
+                funding = []
+
+    return funding, all_mentions_of_money  # the second is returned for debugging purposes
+
+
+def retrieve_datetime(nlp, visible_text, soup):
+    # using either the time element from BSoup or the spacy token. However, exclude dates found in header elements
+
+    time_elem = soup.find("time")
+    all_dates = []
+    unwanted = soup.find('span')
+    unwanted.extract()
+    if time_elem is not None:
+        time_txt = time_elem.string
+        logging.info(time_txt)
+        date_str = str(parser.parse(time_txt, fuzzy=True))
+    else:
+        time_txt = visible_text
+        date_pt = get_date_pt()
+        all_dates = list(set([mtc.group(0) for mtc in re.finditer(date_pt, time_txt)]))
+        for doc in nlp.pipe([visible_text]):
+            for token in doc:
+                if token.ent_type_ == "DATE":
+                    all_dates.append(token)
+        if len(all_dates) > 1:
+            date_str = all_dates[0]  # pick the first
+        else:  # we did not find it in the text. Maybe the URL has it
+            date_str = "not found"
+
+    return date_str, all_dates
 
 
 def exe():
     Utils.init_logging("FundingRounds.log")
     rounds_df = pd.read_excel("InputData.xlsx", sheet_name=1)
-    rounds_df = rounds_df[0:20]
+    # rounds_df = rounds_df[0:20]
 
     f = open('FundingRounds.csv', 'w', newline='')
     writer = csv.writer(f)
-    writer.writerow(["client_id","news_url","funding", "date"])  # add the date next
+    writer.writerow(["client_id","news_url","funding", "money_mentions", "date", "all_dates"])  # add the date next
 
     driver = Utils.get_webdriver()
+    nlp = spacy.load("en_core_web_sm")
+    # From the Spacy examples: Merge noun phrases and entities for easier analysis
+    nlp.add_pipe("merge_entities")
+    nlp.add_pipe("merge_noun_chunks")
 
     for i, row in rounds_df.iterrows():
         news_url = row["news_url"]
@@ -69,33 +121,13 @@ def exe():
 
         soup = bs(driver.page_source, features="lxml")
         visible_text = soup.getText(separator=" ")
-        # logging.info(visible_text + "***\n")
-        text_money_pt = get_money_pt()
 
-        all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(text_money_pt, visible_text)]))
-        if len(all_mentions_of_money) > 0:
-            funding = all_mentions_of_money[0]  # get the first. The next ones may be total funding, investor etc.
-            logging.info(all_mentions_of_money)
-        else:
-            funding = []
-
-        date_pt = get_date_pt()
-        time_elem = soup.find("time")
-        if time_elem is not None:
-            time_txt = time_elem.string
-            date_str = str(parser.parse(time_txt, fuzzy=True))
-        else:
-            time_txt = visible_text
-            all_dates = list(set([mtc.group(0) for mtc in re.finditer(date_pt, time_txt)]))
-            if len(all_dates) > 1:
-                date_str = all_dates[0]  # pick the first
-            else:  # we did not find it in the text. Maybe the URL has it
-                date_str = "not found"
-                logging.info(time_txt)
+        funding, all_mentions_of_money = retrieve_money(nlp, visible_text, soup)
+        date_str, all_dates = retrieve_datetime(nlp, visible_text, soup)
 
         if i % (len(rounds_df) // 5) == 0:
             logging.info(str(i) + "/" + str(len(rounds_df))+ "...")
-        writer.writerow([row["client_id"], row["news_url"], funding, date_str])
+        writer.writerow([row["client_id"], row["news_url"], funding, all_mentions_of_money, date_str, all_dates])
 
 
 

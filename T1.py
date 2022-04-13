@@ -122,7 +122,7 @@ def retrieve_info():
 
     driver = get_webdriver()
 
-    companies = companies[6:7]
+    companies = companies[0:10]
     init_logging("Info.log")
 
     # output file. Since it takes > 20 minutes, we save the partial results
