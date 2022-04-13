@@ -6,6 +6,9 @@ import sys
 import Levenshtein
 from selenium import webdriver
 
+# constants
+CURRENCY_SYMBOLS = 'CHF|DKK|SEK|NOK|kr|EUR|€|GBP|£|PLN|zł|TRY|UAH|ILS|CAD|CLP|USD|\$|AUD|CNY|¥|HK$|INR|₹|SGD|JPY| \
+                           "BTC|XBT|₿|ETH|Ξ'
 
 def init_logging(logfilename, loglevel=logging.INFO):
   for handler in logging.root.handlers[:]:

@@ -26,12 +26,11 @@ def get_date_pt():
 
 def get_money_pt():
     """The regex for amounts of money, with currency. One for URLs, one for text"""
-    all_currency_symbols = "(CHF|DKK|SEK|NOK|kr|EUR|€|GBP|£|PLN|zł|TRY|UAH|ILS|CAD|CLP|USD|\$|AUD|CNY|¥|HK$|INR|₹|SGD|JPY|" \
-                           "BTC|XBT|₿|ETH|Ξ)"
+    all_currency_symbols = "(" + Utils.CURRENCY_SYMBOLS + ")"
     numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)(\s)?" + ")"
     numbers_and_currency = "(" + numbers + all_currency_symbols + "|" + all_currency_symbols + numbers + ")"
     text_money_pt = re.compile(numbers_and_currency + '( digit )?' +
-                               '([mM]|(\s(million(s?)|Million(s)?|thousand(s)?|,000)))')
+                               '(\s(million(s?)|Million(s)?|thousand(s)?|,000))')
 
     return text_money_pt
 
@@ -41,15 +40,22 @@ def retrieve_money(nlp, soup):
     # - check if the headers or the title contain information that the regex can pick up
     # - Use SpaCy on the text: get a majority vote on 'money' entities (n: keep only tokens with numbers in the list).
     # - If no majority is available, use the regex on the text
+    visible_text = soup.getText(separator=" ")
+    money_pt = get_money_pt()
 
     header_tags = soup.find_all(["h", "title"])
     header_strings = [tag.string for tag in header_tags]
-    money_pt = get_money_pt()
+
     all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(money_pt, " ".join(header_strings))]))
     if len(all_mentions_of_money) > 0:
         funding = all_mentions_of_money[0]
+        # if not(any(cs in funding for cs in Utils.CURRENCY_SYMBOLS.split("|"))):  # no currency symbol found in the title
+        #     currency_in_text = list(set([mtc.group(0).lower() for
+        #                                  mtc in re.finditer("("+Utils.CURRENCY_SYMBOLS+")", visible_text)]))
+        #     currency = currency_in_text[0]
+        #     funding = funding + " " + currency
     else:  # nothing found in the headers. Use SpaCy on the page
-        visible_text = soup.getText(separator=" ")
+
         for doc in nlp.pipe([visible_text]):
             for token in doc:
                 if token.ent_type_ == "MONEY":
@@ -57,8 +63,10 @@ def retrieve_money(nlp, soup):
 
         counts = [all_mentions_of_money.count(i) for i in all_mentions_of_money]
         different_counts = set(counts)
+
         if len(different_counts) > 1:  # i.e. one of the entries is found more times than the other
             funding = statistics.mode(all_mentions_of_money)
+
         else:  # if SpaCy does not give us a definite answer, we use the regex
             all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(money_pt, visible_text)]))
             if len(all_mentions_of_money) > 0:
@@ -103,11 +111,11 @@ def retrieve_datetime(nlp, soup):
 def exe():
     Utils.init_logging("FundingRounds.log")
     rounds_df = pd.read_excel("InputData.xlsx", sheet_name=1)
-    rounds_df = rounds_df[0:3]
+    # rounds_df = rounds_df[0:3]
 
     f = open('FundingRounds.csv', 'w', newline='')
     writer = csv.writer(f)
-    writer.writerow(["client_id","news_url","funding", "money_mentions", "date", "all_dates"])  # add the date next
+    writer.writerow(["client_id","news_url","funding", "date"])  # add the date next
 
     nlp = spacy.load("en_core_web_sm")
     # From the Spacy examples: Merge noun phrases and entities for easier analysis
