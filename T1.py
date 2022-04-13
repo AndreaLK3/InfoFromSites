@@ -74,9 +74,7 @@ def get_phone_numbers(driver):
     numbers = [xp.group(0) for xp in re.finditer(numbers_pt, visible_text)]
     numbers_digits = ["".join(list(filter(lambda c: c in string.digits + "+", num_str))) for num_str in numbers]
     phone_numbers_ls = list(filter(lambda num: 7 <= len(num) <= 14, numbers_digits))  # number length
-    # are phone numbers already present, starting with +? if so, eliminate the others, they're likely not phones
-    if any(["+" in num for num in phone_numbers_ls]):
-        phone_numbers_ls = list(filter(lambda num: "+" in num, phone_numbers_ls))
+
     return phone_numbers_ls
 
 
@@ -122,7 +120,7 @@ def retrieve_info():
 
     driver = get_webdriver()
 
-    companies = companies[0:10]
+    # companies = companies[0:10]
     init_logging("Info.log")
 
     # output file. Since it takes > 20 minutes, we save the partial results
@@ -168,6 +166,10 @@ def retrieve_info():
 
             phone_numbers = get_phone_numbers(driver)
             site_phones = site_phones.union(set(phone_numbers))
+            # post-processing:
+            # are phone numbers already present, starting with +? if so, eliminate the others, they're likely not phones
+            if any(["+" in num for num in site_phones]):
+                site_phones = set(filter(lambda num: "+" in num, site_phones))
 
             time.sleep(1)  # to avoid rate limits on HTTP requests to a website
 

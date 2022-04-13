@@ -27,10 +27,10 @@ def get_date_pt():
 def get_money_pt():
     """The regex for amounts of money, with currency. One for URLs, one for text"""
     all_currency_symbols = "(" + Utils.CURRENCY_SYMBOLS + ")"
-    numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)(\s)?" + ")"
+    numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)((\s)?)" + ")"
     numbers_and_currency = "(" + numbers + all_currency_symbols + "|" + all_currency_symbols + numbers + ")"
     text_money_pt = re.compile(numbers_and_currency + '( digit )?' +
-                               '(\s(million(s?)|Million(s)?|thousand(s)?|,000))')
+                               '(\smillion(s?)|\sMillion(s)?|\sthousand(s)?|,000)')
 
     return text_money_pt
 
@@ -49,11 +49,7 @@ def retrieve_money(nlp, soup):
     all_mentions_of_money = list(set([mtc.group(0).lower() for mtc in re.finditer(money_pt, " ".join(header_strings))]))
     if len(all_mentions_of_money) > 0:
         funding = all_mentions_of_money[0]
-        # if not(any(cs in funding for cs in Utils.CURRENCY_SYMBOLS.split("|"))):  # no currency symbol found in the title
-        #     currency_in_text = list(set([mtc.group(0).lower() for
-        #                                  mtc in re.finditer("("+Utils.CURRENCY_SYMBOLS+")", visible_text)]))
-        #     currency = currency_in_text[0]
-        #     funding = funding + " " + currency
+
     else:  # nothing found in the headers. Use SpaCy on the page
 
         for doc in nlp.pipe([visible_text]):
@@ -82,8 +78,8 @@ def retrieve_datetime(nlp, soup):
 
     time_elem = soup.find("time")
     all_dates = []
-    unwanted = soup.find('span')
-    unwanted.extract()
+    #unwanted = soup.find('h')
+    #unwanted.extract()
     if time_elem is not None:
         time_txt = time_elem.string
         try:
@@ -104,6 +100,7 @@ def retrieve_datetime(nlp, soup):
         date_str = all_dates[0]  # pick the first
     else:  # we did not find it in the text. Maybe the URL has it
         date_str = "not found"
+        logging.info("****\n" + visible_text)
 
     return date_str, all_dates
 
@@ -111,7 +108,7 @@ def retrieve_datetime(nlp, soup):
 def exe():
     Utils.init_logging("FundingRounds.log")
     rounds_df = pd.read_excel("InputData.xlsx", sheet_name=1)
-    # rounds_df = rounds_df[0:3]
+    # rounds_df = rounds_df[20:25]
 
     f = open('FundingRounds.csv', 'w', newline='')
     writer = csv.writer(f)
@@ -138,7 +135,7 @@ def exe():
 
         if i % max((len(rounds_df) // 5), 1) == 0:
             logging.info(str(i+1) + "/" + str(len(rounds_df))+ "...")
-        writer.writerow([row["client_id"], row["news_url"], funding, all_mentions_of_money, date_str, all_dates])
+        writer.writerow([row["client_id"], row["news_url"], funding, date_str])
 
         driver.close()
 
