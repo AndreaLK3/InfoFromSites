@@ -60,8 +60,9 @@ def filter_for_english_subpages(driver, urls):
 
 def get_weighted_sentence(sentence, tfidf_obj):
 
-    sentence_mat = tfidf_obj.transform([sentence])
-    avg = np.average((sentence_mat))
+    sentence_mat = tfidf_obj.transform([sentence])  # toDO: solve tokenization
+    logging.info(sentence_mat.shape)
+    avg = np.average(sentence_mat)
     return avg
 
 

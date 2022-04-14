@@ -1,16 +1,23 @@
 import logging
 import re
 import sys
-
-# Invoked to write a message to a text logfile and also print it
 import Levenshtein
 from selenium import webdriver
+from enum import Enum
 
 # constants
 CURRENCY_SYMBOLS = 'CHF|DKK|SEK|NOK|kr|EUR|€|GBP|£|PLN|zł|TRY|UAH|ILS|CAD|CLP|USD|\$|AUD|CNY|¥|HK$|INR|₹|SGD|JPY| \
                     "BTC|XBT|₿|ETH|Ξ'
+class Columns(Enum):
+    WEBSITE = "website"
+    CONTACT = "Contact"
+    LEGAL = "Legal"
+    ABOUT_US = "AboutUs"
+    ADD_TEXT = "_text"
+
 
 def init_logging(logfilename, loglevel=logging.INFO):
+  # Invoked to write a message to a text logfile and also print it
   for handler in logging.root.handlers[:]:
         logging.root.removeHandler(handler)
   logging.basicConfig(level=loglevel, filename=logfilename, filemode="w",
@@ -49,5 +56,3 @@ def get_webdriver():
     return driver
 
 
-def store_pages_t1():
-    # Preliminary step: access the websites and the relevant subpages only once, storing them in .csv files
