@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup as bs
 import string
 
 import Utils
-from Load import get_page_links, get_relevant_subpages
+from SubpageLinks import get_page_links, get_relevant_subpages
 from Utils import remove_nearduplicates, get_webdriver, init_logging
 import time
 
@@ -27,7 +27,7 @@ def get_phone_numbers(page_source_txt):
     visible_text = soup.getText(separator=" _ ")
     numbers_pt = re.compile("(?<=el|ne)?"  # tel/phone
                             "(:|\s)+(\+)?"  # starts with whitespace or directly after :, and maybe a +
-                            "(([0-9]){2,10}(\s)+)+")  # 1 or more sequences of numbers
+                            "(([0-9()]){2,10}(\s)+)+")  # 1 or more sequences of numbers
     numbers = [xp.group(0) for xp in re.finditer(numbers_pt, visible_text)]
     numbers_digits = ["".join(list(filter(lambda c: c in string.digits + "+", num_str))) for num_str in numbers]
     phone_numbers_ls = list(filter(lambda num: 7 <= len(num) <= 14, numbers_digits))  # number length
@@ -68,8 +68,9 @@ def retrieve_info():
         site_emails = set()
         site_phones = set()
         pages_to_consult = contact_pages + legal_pages + about_us_pages
+        # it is possible to consult only the relevant pages, trading speed for completeness
 
-        for subpage_url in pages_to_consult:
+        for subpage_url in subpage_links:
             if subpage_url.startswith(("/")):  # relative URL
                 subpage_url = website_url + subpage_url[1:]
             logging.info("Subpage:" + subpage_url)

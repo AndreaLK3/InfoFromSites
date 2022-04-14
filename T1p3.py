@@ -9,6 +9,12 @@ import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 import langid
 
+
+def dummy_fun(doc):
+    # Dummy function for the TF-IDF vectorizer. Given how we use it (getting TF-IDF weights for words in a header)
+    # we tokenize the documents manually
+    return doc
+
 def setup_tf_idf(companies):
     Utils.init_logging("TF-IDF.log")
     driver = Utils.get_webdriver()
@@ -30,10 +36,11 @@ def setup_tf_idf(companies):
 
         soup = bs(driver.page_source, features="lxml")
         website_text = soup.getText(separator=" ")
-        documents_ls.append(website_text)
+        website_text_tokenized = website_text.split()
+        documents_ls.append(website_text_tokenized)
 
-    tfidf_obj = TfidfVectorizer()
-    tfidf_mat = tfidf_obj.fit_transform(documents_ls, y=None)
+    tfidf_obj = TfidfVectorizer(tokenizer=dummy_fun, preprocessor=dummy_fun, token_pattern=None)
+    tfidf_mat = tfidf_obj.fit_transform(documents_ls, y=None).todense()
 
     return tfidf_obj, tfidf_mat
 
@@ -58,12 +65,21 @@ def filter_for_english_subpages(driver, urls):
     return urls_en
 
 
-def get_weighted_sentence(sentence, tfidf_obj):
+def get_sentence_weight(sentence, site_idx, tfidf_obj, tfidf_mat):
 
-    sentence_mat = tfidf_obj.transform([sentence])  # toDO: solve tokenization
-    logging.info(sentence_mat.shape)
-    avg = np.average(sentence_mat)
-    return avg
+    weights = []
+    for word in sentence.split():
+        doc_idx = site_idx
+        try:
+            w_idx = tfidf_obj.vocabulary_[word.lower()]
+            weights.append(tfidf_mat[doc_idx][w_idx])
+        except KeyError:
+            logging.warning("Not found in doc tf-idf matrix: '" + word + "'")
+        except IndexError:
+            logging.info((doc_idx, w_idx))
+            logging.info(tfidf_mat.shape)
+
+    return sum(weights) / len(weights)
 
 
 def get_headers(companies_df, driver):
@@ -108,7 +124,7 @@ def exe():
         if page_headers_ls is not None:
             page_headers_ls = [h for h in page_headers_ls if h is not None]
             page_headers_ls = list(filter(lambda h: len(h.split())>2, page_headers_ls))  # eliminate headers with <2 words
-            page_headers_ls.sort(key=lambda h: get_weighted_sentence(h, tfidf_obj), reverse=True)
+            page_headers_ls.sort(key=lambda h: get_sentence_weight(h, i, tfidf_obj, tfidf_mat), reverse=True)
         else: # empty site
             page_headers_ls = []
         candidate_desc_ls.append(page_headers_ls)
