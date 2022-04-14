@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup as bs
 import string
 import langid
 from Utils import remove_nearduplicates, get_webdriver, init_logging
+import time
 
 
 def get_links(driver, website_url):
@@ -115,9 +116,8 @@ def retrieve_info():
     # if there is a version of the site in English, add the subpages from it
     # determine the Contact, Legal, and About Us pages
     # run a regex search on the site and its significant (see above) subpages for e-mails and phone numbers
-
+    t0 = time.time()
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-
     driver = get_webdriver()
 
     # companies = companies[0:10]
@@ -182,3 +182,5 @@ def retrieve_info():
 
     driver.close()
     f.close()
+    t1 = time.time()
+    logging.info("Time elapsed=" + str(round(t1 - t0, 2)))

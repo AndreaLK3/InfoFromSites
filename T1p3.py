@@ -1,3 +1,5 @@
+import numpy as np
+
 import T1
 import Utils
 import pandas as pd
@@ -7,47 +9,31 @@ import requests
 from sklearn.feature_extraction.text import TfidfVectorizer
 import langid
 
-def setup_tf_idf():
+def setup_tf_idf(companies):
     Utils.init_logging("TF-IDF.log")
-
-    companies = pd.read_excel("InputData.xlsx", sheet_name=0)
-    companies = companies[5:8]
     driver = Utils.get_webdriver()
+    documents_ls = []
 
-    documents_dict = dict()
     for i, row in companies.iterrows():
         website_url = row["website"]
-        logging.info("\nPage: " + website_url)
+        logging.info("Page: " + website_url)
         try:
             driver.get(website_url)
         except Exception as e:
             logging.warning(e)
             continue
 
-        subpage_links = T1.get_page_links(driver, website_url)
-        # if we have pages in English and in another language, keep only the former
-
-
-        logging.info("List of subpages: " + str(subpage_links))
-
-        contact_pages, legal_pages, about_us_pages = T1.get_relevant_subpages(subpage_links, website_url)
+        # subpage_links = T1.get_page_links(driver, website_url)
+        # # if we have pages in English and in another language, keep only the former
+        # logging.info("List of subpages: " + str(subpage_links))
+        # contact_pages, legal_pages, about_us_pages = T1.get_relevant_subpages(subpage_links, website_url)
 
         soup = bs(driver.page_source, features="lxml")
         website_text = soup.getText(separator=" ")
-        about_us_text = ""
-        for subpage in about_us_pages:
-            driver.get(subpage)
-            soup = bs(driver.page_source, features="lxml")
-            subpage_text = soup.getText(separator=" ")
-            about_us_text = about_us_text + subpage_text
-        documents_dict[website_url] = website_text + " " + about_us_text
-        print(documents_dict.keys())
+        documents_ls.append(website_text)
 
-    sorted_websites = sorted(companies["website"].tolist())
-
-    docs = [documents_dict[k] for k in sorted_websites]
     tfidf_obj = TfidfVectorizer()
-    tfidf_mat = tfidf_obj.fit_transform(docs, y=None)
+    tfidf_mat = tfidf_obj.fit_transform(documents_ls, y=None)
 
     return tfidf_obj, tfidf_mat
 
@@ -72,15 +58,11 @@ def filter_for_english_subpages(driver, urls):
     return urls_en
 
 
-def get_weighted_sentence(sentence, site_idx, tfidf_obj, tfidf_mat):
+def get_weighted_sentence(sentence, tfidf_obj):
 
-    weights = []
-    for word in sentence.split():
-        doc_idx = site_idx
-        w_idx = tfidf_obj.vocabulary_[word.lower()]
-        weights.append(tfidf_mat[doc_idx][w_idx])
-
-    return sum(weights) / len(weights)
+    sentence_mat = tfidf_obj.transform([sentence])
+    avg = np.average((sentence_mat))
+    return avg
 
 
 def get_headers(companies_df, driver):
@@ -101,7 +83,7 @@ def get_headers(companies_df, driver):
         header_tags = soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"])
         header_strings = [tag.string for tag in header_tags]
 
-        logging.info(header_strings)
+        # logging.info(header_strings)
         all_pages_headers.append(header_strings)
 
     driver.close()
@@ -112,16 +94,24 @@ def get_headers(companies_df, driver):
 def exe():
     Utils.init_logging("Description.log")
     companies_df = pd.read_excel("InputData.xlsx", sheet_name=0)
-    companies_df = companies_df[5:8]
+    companies_df = companies_df[0:8]
     # sorted_websites = sorted(companies_df["website"].tolist())
     driver = Utils.get_webdriver()
 
+    tfidf_obj, tfidf_mat = setup_tf_idf(companies_df)
     all_pages_headers = get_headers(companies_df, driver)
 
-    descriptions_dict = dict()
+    candidate_desc_ls = []
     for i, row in companies_df.iterrows():
-        website = row["website"]
-
+        page_headers_ls = all_pages_headers[i]
+        if page_headers_ls is not None:
+            page_headers_ls = [h for h in page_headers_ls if h is not None]
+            page_headers_ls = list(filter(lambda h: len(h.split())>2, page_headers_ls))  # eliminate headers with <2 words
+            page_headers_ls.sort(key=lambda h: get_weighted_sentence(h, tfidf_obj), reverse=True)
+        else: # empty site
+            page_headers_ls = []
+        candidate_desc_ls.append(page_headers_ls)
+    logging.info("***candidate_desc_ls : \n" + str(candidate_desc_ls))
 
     return all_pages_headers
 

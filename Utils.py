@@ -8,7 +8,7 @@ from selenium import webdriver
 
 # constants
 CURRENCY_SYMBOLS = 'CHF|DKK|SEK|NOK|kr|EUR|€|GBP|£|PLN|zł|TRY|UAH|ILS|CAD|CLP|USD|\$|AUD|CNY|¥|HK$|INR|₹|SGD|JPY| \
-                           "BTC|XBT|₿|ETH|Ξ'
+                    "BTC|XBT|₿|ETH|Ξ'
 
 def init_logging(logfilename, loglevel=logging.INFO):
   for handler in logging.root.handlers[:]:
@@ -47,3 +47,7 @@ def get_webdriver():
     driver = webdriver.Edge(executable_path='msedgedriver.exe', options=edge_options)
 
     return driver
+
+
+def store_pages_t1():
+    # Preliminary step: access the websites and the relevant subpages only once, storing them in .csv files

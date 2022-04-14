@@ -8,6 +8,8 @@ import csv
 from dateutil import parser
 import spacy
 import statistics
+from time import time
+import sys
 
 def get_date_pt():
     """ Get the regex pattern to locate a date in the text"""
@@ -27,10 +29,10 @@ def get_date_pt():
 def get_money_pt():
     """The regex for amounts of money, with currency. One for URLs, one for text"""
     all_currency_symbols = "(" + Utils.CURRENCY_SYMBOLS + ")"
-    numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)((\s)?)" + ")"
+    numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)" + ")((\s)?)"
     numbers_and_currency = "(" + numbers + all_currency_symbols + "|" + all_currency_symbols + numbers + ")"
     text_money_pt = re.compile(numbers_and_currency + '( digit )?' +
-                               '(\smillion(s?)|\sMillion(s)?|\sthousand(s)?|,000)')
+                               '(\smillion(s?)|\sMillion(s)?|\sthousand(s)?|,000)' + "(("+all_currency_symbols+")?)")
 
     return text_money_pt
 
@@ -68,7 +70,7 @@ def retrieve_money(nlp, soup):
             if len(all_mentions_of_money) > 0:
                 funding = all_mentions_of_money[0]  # get the first. The next ones may be total funding, investor etc.
             else:
-                funding = []
+                funding = "not found"
 
     return funding, all_mentions_of_money  # the second is returned for debugging purposes
 
@@ -83,8 +85,8 @@ def retrieve_datetime(nlp, soup):
     if time_elem is not None:
         time_txt = time_elem.string
         try:
-            date_str = str(parser.parse(time_txt, fuzzy=True))
-            return date_str, all_dates
+            date = str(parser.parse(time_txt, fuzzy=True))
+            return date, all_dates
         except:
             pass
 
@@ -97,15 +99,23 @@ def retrieve_datetime(nlp, soup):
             if token.ent_type_ == "DATE":
                 all_dates.append(token)
     if len(all_dates) > 1:
-        date_str = all_dates[0]  # pick the first
+        date_string = all_dates[0] # if all_dates[0].__class__=='str' else all_dates[0].text # pick the first string/token
+        date = str(parser.parse(date_string, fuzzy=True))
     else:  # we did not find it in the text. Maybe the URL has it
-        date_str = "not found"
-        logging.info("****\n" + visible_text)
+        date = "not found"
 
-    return date_str, all_dates
+    return date, all_dates
+
+def get_digits_from_letters(funding_str):
+    # a bit of post-processing for funding amounts
+    words_to_digits_dict = {"one":"1", "two":"2", "three":"3", "four":"4" , "five:":"5", "six":"6", "seven":"7",
+                            "eight":"8", "nine:":"9", "ten":"10"}
+    for k in words_to_digits_dict.keys():
+        funding_str.replace(k, words_to_digits_dict[k])
 
 
 def exe():
+    t0 = time()
     Utils.init_logging("FundingRounds.log")
     rounds_df = pd.read_excel("InputData.xlsx", sheet_name=1)
     # rounds_df = rounds_df[20:25]
@@ -125,12 +135,14 @@ def exe():
             driver = Utils.get_webdriver()
             driver.get(news_url)
         except Exception as e:
-            logging.warning(e)
+            sys.tracebacklimit = 0
+            logging.warning(news_url + ": " + str(e))
             continue
 
         soup = bs(driver.page_source, features="lxml")
 
         funding, all_mentions_of_money = retrieve_money(nlp, soup)
+        get_digits_from_letters(funding)
         date_str, all_dates = retrieve_datetime(nlp, soup)
 
         if i % max((len(rounds_df) // 5), 1) == 0:
@@ -140,6 +152,8 @@ def exe():
         driver.close()
 
     f.close()
+    t1 = time()
+    logging.info("Time elapsed=" + str(round(t1-t0,2)))
 
 
 
