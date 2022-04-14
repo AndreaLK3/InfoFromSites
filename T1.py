@@ -4,7 +4,6 @@ import re
 import csv
 from bs4 import BeautifulSoup as bs
 import string
-
 import Utils
 from SubpageLinks import get_page_links, get_relevant_subpages
 from Utils import remove_nearduplicates, get_webdriver, init_logging
@@ -35,6 +34,23 @@ def get_phone_numbers(page_source_txt):
     return phone_numbers_ls
 
 
+def get_candidate_description(page_txt_source):
+    soup = bs(page_txt_source, features="lxml")
+    header_tags = soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"])
+    header_strings = [tag.string for tag in header_tags]
+
+    if header_strings is not None:
+        page_headers_ls = [h for h in header_strings if h is not None]
+        page_headers_ls = list(filter(lambda h: len(h.split()) > 2, page_headers_ls))  # eliminate headers with <2 words
+        if len(page_headers_ls)>0:
+            cand_desc = page_headers_ls[0]
+            return cand_desc
+    # empty site
+    cand_desc = ""
+
+    return cand_desc
+
+
 def retrieve_info():
     # Steps:
     # gather the subpages of the site at 1 level of depth
@@ -51,7 +67,8 @@ def retrieve_info():
     # output file. Since it takes > 20 minutes, we save the partial results
     f = open('Info.csv', 'w', newline='')
     writer = csv.writer(f)
-    writer.writerow(["website","emails", "phone_numbers", "Contact_pages", "Legal_pages", "AboutUs_pages"])
+    writer.writerow(["website","emails", "phone_numbers", "candidate_description",
+                     "Contact_pages", "Legal_pages", "AboutUs_pages"])
 
     for i, row in companies.iterrows():
         website_url = row["website"]
@@ -62,13 +79,14 @@ def retrieve_info():
             logging.warning(e)
             continue
 
+        cand_desc = get_candidate_description(driver.page_source)
         subpage_links = remove_nearduplicates(get_page_links(driver, website_url))
         contact_pages, legal_pages, about_us_pages = get_relevant_subpages(subpage_links, website_url)
 
         site_emails = set()
         site_phones = set()
         pages_to_consult = contact_pages + legal_pages + about_us_pages
-        # it is possible to consult only the relevant pages, trading speed for completeness
+        # it is possible to consult only the most relevant pages, trading the completeness of e-mails/numbers for speed
 
         for subpage_url in subpage_links:
             if subpage_url.startswith(("/")):  # relative URL
@@ -97,7 +115,13 @@ def retrieve_info():
                      # + " ; contact_pages: " + str(contact_pages) + " ; legal_pages: " + str(legal_pages) +
                      # " ; about_us_pages: " + str(about_us_pages))
 
-        writer.writerow([website_url,str(site_emails), str(site_phones),
+        # cleaning output when missing
+        if len(site_phones) == 0:
+            site_phones = ""
+        if len(site_emails) == 0:
+            site_emails = ""
+
+        writer.writerow([website_url,str(site_emails), str(site_phones), cand_desc,
                          str(contact_pages), str(legal_pages), str(about_us_pages)])
 
     driver.close()

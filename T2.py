@@ -100,7 +100,10 @@ def retrieve_datetime(nlp, soup):
                 all_dates.append(token)
     if len(all_dates) > 1:
         date_string = all_dates[0] # if all_dates[0].__class__=='str' else all_dates[0].text # pick the first string/token
-        date = str(parser.parse(date_string, fuzzy=True))
+        try:
+            date = str(parser.parse(date_string, fuzzy=True))
+        except TypeError:
+            date = str(parser.parse(date_string.text, fuzzy=True))  # get the SpaCy token's text
     else:  # we did not find it in the text. Maybe the URL has it
         date = "not found"
 
