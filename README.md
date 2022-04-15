@@ -41,7 +41,7 @@ number of relevant words and weighing them by TF-IDF.
 As a workaround and partial solution in `T1.get_candidate_description(page_txt_source)`,
 we use BeautifulSoup to find the page headers (<h*>) and return the first that is not None 
 and has more than 2 words.
-If one had more time, a quick refinement would involve eliminating all non-English words
+If we had more time, a quick refinement would involve eliminating all non-English words
 and using TF-IDF to try to determine which header is most relevant (e.g. "our business is ..." rather than "Privacy and Legal terms")
 
 
