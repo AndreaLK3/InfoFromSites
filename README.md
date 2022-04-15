@@ -13,8 +13,7 @@ We use a regex to extract the addresses in `<href>`
 elements of the main page. We have to manually exclude .css and .js and
 similar extensions, since they still constitute valid URLs accessible from the
 main page but are not subpages of the site. The core of this step is found in 
-the function<br/>
-`get_links(driver, website_url)`, in the module SubpageLinks.py.
+the function `get_links(driver, website_url)`, in the module SubpageLinks.py.
 
 #### Relevant subpages
 
