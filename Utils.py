@@ -8,12 +8,17 @@ from enum import Enum
 # constants
 CURRENCY_SYMBOLS = 'CHF|DKK|SEK|NOK|kr|EUR|€|GBP|£|PLN|zł|TRY|UAH|ILS|CAD|CLP|USD|\$|AUD|CNY|¥|HK$|INR|₹|SGD|JPY| \
                     "BTC|XBT|₿|ETH|Ξ'
-class Columns(Enum):
-    WEBSITE = "website"
-    CONTACT = "Contact"
-    LEGAL = "Legal"
-    ABOUT_US = "AboutUs"
-    ADD_TEXT = "_text"
+
+def get_webdriver():
+    # We need a Selenium webdriver to get 100% of the text from dynamic webpages that rely on javascript
+
+    edge_options = webdriver.EdgeOptions()
+    edge_options.use_chromium = True
+    edge_options.add_argument('headless')
+    edge_options.add_argument('disable-gpu')
+    driver = webdriver.Edge(executable_path='msedgedriver.exe', options=edge_options)
+
+    return driver
 
 
 def init_logging(logfilename, loglevel=logging.INFO):
@@ -42,17 +47,5 @@ def remove_nearduplicates(str_ls):
             continue
         str_ls_1.append(s)
     return str_ls_1
-
-
-def get_webdriver():
-    # We need a Selenium webdriver to get 100% of the text from dynamic webpages that rely on javascript
-
-    edge_options = webdriver.EdgeOptions()
-    edge_options.use_chromium = True
-    edge_options.add_argument('headless')
-    edge_options.add_argument('disable-gpu')
-    driver = webdriver.Edge(executable_path='msedgedriver.exe', options=edge_options)
-
-    return driver
 
 

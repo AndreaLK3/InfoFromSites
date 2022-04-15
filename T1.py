@@ -11,6 +11,8 @@ import time
 
 
 def get_emails(page_txt):
+    """Apply the regex to the page text to extract e-mail addresses"""
+
     emails_pt = re.compile("(?<=mailto:)?([A-Za-z0-9])+@([A-Za-z0-_9])+(\.[A-Z|a-z]{2,5})+")
     addresses = list(set([xp.group(0) for xp in re.finditer(emails_pt, page_txt)]))
     not_email_fragments = ["sentry", "wixpress", "png", "gif", "jpeg", "example",
@@ -21,7 +23,8 @@ def get_emails(page_txt):
 
 
 def get_phone_numbers(page_source_txt):
-    # The phone numbers are taken from the visible text of the HTML pages, thus we need BeautifulSoup
+    """Use BeautifulSoup to get the page's visible text, and apply the regex to extract the phone numbers"""
+
     soup = bs(page_source_txt, features="lxml")
     visible_text = soup.getText(separator=" _ ")
     numbers_pt = re.compile("(?<=el|ne)?"  # tel/phone
@@ -35,6 +38,8 @@ def get_phone_numbers(page_source_txt):
 
 
 def get_candidate_description(page_txt_source):
+    """Temporary exploration for the description problem: get the first header of the page with >2 words"""
+
     soup = bs(page_txt_source, features="lxml")
     header_tags = soup.findAll(["h1", "h2", "h3", "h4", "h5", "h6"])
     header_strings = [tag.string for tag in header_tags]
@@ -52,11 +57,12 @@ def get_candidate_description(page_txt_source):
 
 
 def retrieve_info():
-    # Steps:
-    # gather the subpages of the site at 1 level of depth
-    # if there is a version of the site in English, add the subpages from it
-    # determine the Contact, Legal, and About Us pages
-    # run a regex search on the site and its significant (see above) subpages for e-mails and phone numbers
+    """Steps:
+    - gather the subpages of the site at 1 level of depth
+    - determine the Contact, Legal, and About Us pages
+    - run a regex search on the site and its significant (see above) subpages for e-mails and phone numbers
+    - get the first header of the main page to see how often it could correspond to a description"""
+
     init_logging("Info.log")
     t0 = time.time()
 
@@ -86,8 +92,8 @@ def retrieve_info():
         relevant_pages = contact_pages + legal_pages + about_us_pages
         # it is possible to consult only the most relevant pages, trading the completeness of e-mails/numbers for speed
         # as it stands, we use it when limiting the number of subpages to scrape
-        if len(subpage_links) > 10:
-            subpage_links = subpage_links[0:10] + relevant_pages
+        if len(subpage_links) > 20:
+            subpage_links = subpage_links[0:20] + relevant_pages
 
         for subpage_url in subpage_links:
             if subpage_url.startswith(("/")):  # relative URL
@@ -124,7 +130,7 @@ def retrieve_info():
 
         writer.writerow([website_url,str(site_emails), str(site_phones), cand_desc,
                          str(contact_pages), str(legal_pages), str(about_us_pages)])
-        f.flush()
+        # f.flush()
 
     driver.close()
     f.close()

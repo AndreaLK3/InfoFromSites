@@ -7,7 +7,7 @@ import T2
 if os.path.exists("Info.csv"):
     print("The data for task 1 has already been collected in the file Info.csv")
 else:
-    print("The data for task 1 still has to be collected. Expected time ~30 minutes")
+    print("The data for task 1 still has to be collected. Expected time ~40 minutes")
     T1.retrieve_info()
 
 if os.path.exists("FundingRounds.csv"):

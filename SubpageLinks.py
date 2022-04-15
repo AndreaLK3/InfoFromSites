@@ -1,18 +1,16 @@
-import csv
 import logging
 import re
-import time
 import langid
-import pandas as pd
 import requests
 import selenium.common.exceptions
 from bs4 import BeautifulSoup as bs
-from Utils import get_webdriver, init_logging, Columns, remove_nearduplicates
+from Utils import remove_nearduplicates
 
 
 def get_links(driver, website_url):
-    # apply a regxp that includes all HTML links (href) on the site that contain a URL
-    # excluding files hosted on the site, like images, css, xml etc.
+    """Apply a regxp that includes all HTML links (href) on the site that contain a URL
+       Excluding files hosted on the site, like images, css, xml etc."""
+
     try:
         driver.get(website_url)
         response = requests.get(website_url)
@@ -35,8 +33,10 @@ def get_links(driver, website_url):
 
 
 def get_page_links(driver, website_url):
+    """Intermediate function between get_relevant_subpages() and get_links():
+       If the site is not in English, check whether there is an English version (extension or subpage) with .en or /en"""
+
     page_links = get_links(driver, website_url)
-    # If the site is not in English, check whether there is an English version (extension or subpage)
     try:
         soup = bs(driver.page_source, features="lxml")
     except selenium.common.exceptions.TimeoutException as e:
@@ -58,10 +58,10 @@ def get_page_links(driver, website_url):
 
 
 def get_relevant_subpages(subpages_urls_ls, website_url):
-    # Gets the URLs to:
-    # ○ Contact pages; e.g. contact, impressum, kontakt
-    # ○ Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy-policy, datenschutz, confidentialité
-    # ○ About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, quienes-somos
+    """ Gets the URLs to:
+    # - Contact pages; e.g. contact, impressum, kontakt
+    # - Legal pages (both Terms and Conditions and Privacy Policy);  e.g. privacy-policy, datenschutz, confidentialité
+    # - About us pages (this page can also be under Mission, Who we are and similar)  e.g. about-us, Über uns, quienes-somos"""
 
     subpages_urls = []
     for url in subpages_urls_ls:

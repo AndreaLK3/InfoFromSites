@@ -27,7 +27,8 @@ def get_date_pt():
 
 
 def get_money_pt():
-    """The regex for amounts of money, with currency. One for URLs, one for text"""
+    """The regex for amounts of money, with currency"""
+
     all_currency_symbols = "(" + Utils.CURRENCY_SYMBOLS + ")"
     numbers = "(" + "([0-9.])+" + ")|(" + "(one|two|three|four|five|six|seven|eight|nine|ten)" + ")((\s)?)"
     numbers_and_currency = "(" + numbers + all_currency_symbols + "|" + all_currency_symbols + numbers + ")"
@@ -38,10 +39,10 @@ def get_money_pt():
 
 
 def retrieve_money(nlp, soup):
-    # The amount of the round as float (preferably denominated in original currency - in the case above SEK);
-    # - check if the headers or the title contain information that the regex can pick up
-    # - Use SpaCy on the text: get a majority vote on 'money' entities (n: keep only tokens with numbers in the list).
-    # - If no majority is available, use the regex on the text
+    """ To get the funding amount:
+    - check if the headers or the title contain information that the regex can pick up
+    - Use SpaCy on the text: get a majority vote on 'money' entities (n: keep only tokens with numbers in the list).
+    - If no majority is available, use the regex on the text"""
     visible_text = soup.getText(separator=" ")
     money_pt = get_money_pt()
 
@@ -76,7 +77,7 @@ def retrieve_money(nlp, soup):
 
 
 def retrieve_datetime(nlp, soup):
-    # using either the time element from BSoup or the spacy token. However, exclude dates found in header elements
+    """Get datetime information using either the time element from BSoup or the spacy token"""
 
     time_elem = soup.find("time")
     all_dates = []

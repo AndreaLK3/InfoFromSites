@@ -1,8 +1,11 @@
 ## Data Scientist Task
 
+Python script: `script.py`
+
 ### TASK #1
 
-Data retrieval executed with `T1.retrieve_info()`
+Data retrieval executed with `T1.retrieve_info()` <br>
+Output found in the file `Info.csv`. Execution time: ~40 minutes
 
 Give a company's website, our first step is to collect the URLs
 of the site's subpages at 1 level of depth, which include contact pages, legal pages etc.. <br/>
@@ -38,4 +41,34 @@ more opportune to extract keywords, either as a classification task, turning the
 readable text on the site into a vector and applying a neural network, or by selecting a 
 number of relevant words and weighing them by TF-IDF.
 
-Having said that, as a workaround and partial solution in `T1.get_candidate_description(page_txt_source)`
+As a workaround and partial solution in `T1.get_candidate_description(page_txt_source)`,
+we use BeautifulSoup to find the page headers (<h*>) and return the first that is not None 
+and has more than 2 words.
+If one had more time, a quick refinement would involve eliminating all non-English words
+and using TF-IDF to try to determine which header is most relevant (e.g. "our business is ..." rather than "Privacy and Legal terms")
+
+
+### TASK #2
+
+Data retrieval executed with `T2.exe()` <br>
+Output found in the file `FundingRounds.csv`. Execution time: ~10 minutes
+
+#### Funding amount
+
+We have 3 ways of retrieving funding information, so if one does not return anything we use the next:
+- Check if the headers or the title of the webpage already contain information that a money regex can pick up
+- Get a webpage's visible text via BeautifulSoup and use SpaCy's tool for English to find all the "MONEY" entities. We suppose that the funding amount is either mentioned first or mentioned more times, so we get a majority vote
+- If no majority is available, use the money regex on the page's text
+
+#### Date
+
+Similarly, we make 3 attempts to retrieve datetime information:
+- Use BeautifulSoup to find the \<time\> elements in the page
+- Use the regex for dates on the page's visible text
+- Use SpaCy to get the "DATE" entities 
+
+n: The regex is vulnerable to other dates being present in the page, like today's date. 
+The headers could be excluded from the text being examined, to trade completeness for correctness.
+
+
+
