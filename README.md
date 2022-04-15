@@ -48,7 +48,7 @@ and using TF-IDF to try to determine which header is most relevant (e.g. "our bu
 ### TASK #2
 
 Data retrieval executed with `T2.exe()` <br>
-Output found in the file `FundingRounds.csv`. Execution time: ~10 minutes
+Output found in the file `FundingRounds.csv`. Execution time: ~15 minutes
 
 #### Funding amount
 
