@@ -57,15 +57,13 @@ def retrieve_info():
     # if there is a version of the site in English, add the subpages from it
     # determine the Contact, Legal, and About Us pages
     # run a regex search on the site and its significant (see above) subpages for e-mails and phone numbers
+    init_logging("Info.log")
     t0 = time.time()
+
     companies = pd.read_excel("InputData.xlsx", sheet_name=0)
     driver = get_webdriver()
-
-    # companies = companies[0:10]
-    init_logging("Info.log")
-
     # output file. Since it takes > 20 minutes, we save the partial results
-    f = open('Info.csv', 'w', newline='')
+    f = open('Info.csv', 'w', newline='', encoding="utf-8")
     writer = csv.writer(f)
     writer.writerow(["website","emails", "phone_numbers", "candidate_description",
                      "Contact_pages", "Legal_pages", "AboutUs_pages"])
@@ -85,8 +83,11 @@ def retrieve_info():
 
         site_emails = set()
         site_phones = set()
-        pages_to_consult = contact_pages + legal_pages + about_us_pages
+        relevant_pages = contact_pages + legal_pages + about_us_pages
         # it is possible to consult only the most relevant pages, trading the completeness of e-mails/numbers for speed
+        # as it stands, we use it when limiting the number of subpages to scrape
+        if len(subpage_links) > 10:
+            subpage_links = subpage_links[0:10] + relevant_pages
 
         for subpage_url in subpage_links:
             if subpage_url.startswith(("/")):  # relative URL
@@ -123,6 +124,7 @@ def retrieve_info():
 
         writer.writerow([website_url,str(site_emails), str(site_phones), cand_desc,
                          str(contact_pages), str(legal_pages), str(about_us_pages)])
+        f.flush()
 
     driver.close()
     f.close()

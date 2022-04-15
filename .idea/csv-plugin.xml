@@ -24,13 +24,6 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="\TextData.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value=":" />
-            </Attribute>
-          </value>
-        </entry>
       </map>
     </option>
   </component>

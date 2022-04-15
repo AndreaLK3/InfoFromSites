@@ -5,6 +5,7 @@ import time
 import langid
 import pandas as pd
 import requests
+import selenium.common.exceptions
 from bs4 import BeautifulSoup as bs
 from Utils import get_webdriver, init_logging, Columns, remove_nearduplicates
 
@@ -36,7 +37,12 @@ def get_links(driver, website_url):
 def get_page_links(driver, website_url):
     page_links = get_links(driver, website_url)
     # If the site is not in English, check whether there is an English version (extension or subpage)
-    soup = bs(driver.page_source, features="lxml")
+    try:
+        soup = bs(driver.page_source, features="lxml")
+    except selenium.common.exceptions.TimeoutException as e:
+        logging.warning("Selenium timeout exception when trying to access driver.page_source on page "
+                        + website_url)
+        return []
     visible_text = soup.getText(separator=" ")  # exclude HTMl code for the purpose of language identification
     site_language = langid.classify(visible_text)[0]
     logging.info("site language: " + site_language)
