@@ -17,9 +17,7 @@ the function `get_links(driver, website_url)`, in the module SubpageLinks.py.
 
 #### Relevant subpages
 
-Since we have the subpage links already, we address point 3 in <br/>
-`SubpageLinks.get_relevant_subpages(subpages_urls_ls, website_url)`<br/>
-We define a number of identifiers in several languages (e.g.  "impressum", "kontakt", "contatti", "contacto")
+Since we have the subpage links already, we define a number of identifiers in several languages (e.g.  "impressum", "kontakt", "contatti", "contacto")
 and then simply check if they are present in the URLs.
 
 #### E-mails
