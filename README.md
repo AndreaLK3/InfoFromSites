@@ -7,7 +7,7 @@ Python script: `script.py`
 Data retrieval executed with `T1.retrieve_info()` <br>
 Output found in the file `Info.csv`. Execution time: ~40 minutes
 
-Give a company's website, our first step is to collect the URLs
+Given a company's website, our first step is to collect the URLs
 of the site's subpages at 1 level of depth, which include contact pages, legal pages etc.. <br/>
 We use a regex to extract the addresses in `<href>`
 elements of the main page. We have to manually exclude .css and .js and
